@@ -12,7 +12,7 @@ import textwrap
 
 class PrintableNode(Node):
     def to_str(self):
-        return "TODO!"
+        return ("\n").join([c.to_str() for c in self.children])
 
     def prepare(self):
         c = [c.prepare() for c in self.children]
@@ -74,6 +74,29 @@ class RootNode(PrintableNode):
         return funcs
 
 
+class BlockNode(PrintableNode):
+    def __init__(self, name, sep = '/', **kwargs):
+        super().__init__(name,sep, **kwargs)
+
+
+class ExpressionNode(PrintableNode):
+    def __init__(self, name, sep = '/', **kwargs):
+        super().__init__(name,sep, **kwargs)
+
+    def pre(self):
+        return ("\n").join([c.pre() for c in self.children])
+
+    def flat(self):
+        return ("\n").join([c.flat() for c in self.children])
+
+    def var_repr(self):
+        if isinstance(self.children[0], FunctionCallNode):
+            return self.children[0].name
+        elif isinstance(self.children[0], LiteralNode):
+            return  self.children[0].literal_value
+        elif isinstance(self.children[0], IdentifierNode):
+            return  self.children[0].id_value
+
 class IdentifierNode(PrintableNode):
     def __init__(self, name, sep = '/', **kwargs):
         super().__init__(name,sep, **kwargs)
@@ -131,7 +154,7 @@ class FunctionCallNode(PrintableNode):
         return s
 
     def prepare(self):
-        if isinstance (self.parent, FunctionCallNode) or isinstance (self.parent, AssNode) or isinstance(self.parent, VarDeclNode) or isinstance(self.parent, IfNode) :
+        if isinstance (self.parent.parent, FunctionCallNode) or isinstance (self.parent.parent, AssNode) or isinstance(self.parent.parent, VarDeclNode) or isinstance(self.parent.parent, IfNode) :
             if not self.ass_child:
                 proc = self.find_parent_proc(self)
                 proc.proc_vars.append(self.name)
@@ -208,6 +231,27 @@ class IfNode(PrintableNode):
         s = s + "if(as_bool " + self.children[0].flat() + "){\n" + if_body  + "\n}"
         return s
 
+class ForNode(PrintableNode):
+    def __init__(self, name, sep = '/', **kwargs):
+        super().__init__(name,sep, **kwargs)
+# TODO: add vars
+    def to_str(self):
+        cond_var = self.children[1].var_repr()
+        init_block = self.children[0].to_str()
+        cond_block = self.children[1].pre()
+        cond_block_init = self.children[1].pre()
+        post_block = self.indent(self.children[2].to_str(),4,' ')
+        body_block = self.indent(self.children[3].to_str(),4,' ')
+        return init_block + "\n" + cond_block_init + "while(as_bool " + cond_var + "){\n" + body_block + "\n" + post_block + "\n" + self.indent(cond_block,4,' ') + "\n}"
+
+    def prepare(self):
+        if isinstance(self.children[1].children[0], FunctionCallNode):
+            print("!")
+            proc = self.find_parent_proc(self)
+            proc.proc_vars.append(self.children[1].var_repr())
+        super().prepare()
+
+    
 
 
 class ProcNode(PrintableNode):
@@ -330,11 +374,13 @@ class YulEasyCryptListener(YulListener):
 
     # Enter a parse tree produced by YulParser#yul_for_loop.
     def enterYul_for_loop(self, ctx:YulParser.Yul_for_loopContext):
-        pass
+        for_loop = ForNode("for" + str(self.nonce), parent = self.ec_node)
+        self.nonce += 1
+        self.ec_node = for_loop
 
     # Exit a parse tree produced by YulParser#yul_for_loop.
     def exitYul_for_loop(self, ctx:YulParser.Yul_for_loopContext):
-        pass
+        self.ec_node = self.ec_node.parent
 
     # Enter a parse tree produced by YulParser#yul_break.
     def enterYul_break(self, ctx:YulParser.Yul_breakContext):
@@ -433,13 +479,13 @@ class YulEasyCryptListener(YulListener):
 
     # Enter a parse tree produced by YulParser#yul_block.
     def enterYul_block(self, ctx:YulParser.Yul_blockContext):
-        pass
-        #self.built_string += "[\"yul_block\","
+        block_node = BlockNode("block" + str(self.nonce), parent = self.ec_node)
+        self.nonce += 1
+        self.ec_node = block_node
 
     # Exit a parse tree produced by YulParser#yul_block.
     def exitYul_block(self, ctx:YulParser.Yul_blockContext):
-        pass
-        #self.built_string += "],"
+        self.ec_node = self.ec_node.parent
 
     # Enter a parse tree produced by YulParser#yul_statement.
     def enterYul_statement(self, ctx:YulParser.Yul_statementContext):
@@ -464,12 +510,14 @@ class YulEasyCryptListener(YulListener):
 
     # Enter a parse tree produced by YulParser#yul_expression.
     def enterYul_expression(self, ctx:YulParser.Yul_expressionContext):
-        pass
+        expr_node = ExpressionNode("expr" + str(self.nonce), parent = self.ec_node)
+        self.nonce += 1
+        self.ec_node = expr_node
         #self.built_string += ctx.getText()
 
     # Exit a parse tree produced by YulParser#yul_expression.
     def exitYul_expression(self, ctx:YulParser.Yul_expressionContext):
-        pass
+        self.ec_node = self.ec_node.parent
         #self.built_string += "],"
 
     # Enter a parse tree produced by YulParser#yul_function_call.
@@ -477,13 +525,11 @@ class YulEasyCryptListener(YulListener):
         curr_node = FunctionCallNode("func" + str(self.nonce), parent = self.ec_node)
         self.nonce += 1
         if ctx.parentCtx.parentCtx.getRuleIndex() == YulParser.RULE_yul_assignment or ctx.parentCtx.parentCtx.getRuleIndex() == YulParser.RULE_yul_variable_declaration :
-            self.ec_node.rhs = curr_node
+            self.ec_node.parent.rhs = curr_node
             curr_node.ass_child = True
         self.ec_node = curr_node
         self.ec_node.setFunctionCallName(ctx.getChild(0).getText())
 
-        
-        #self.built_string += "[\"yul_function_call\","
 
     # Exit a parse tree produced by YulParser#yul_function_call.
     def exitYul_function_call(self, ctx:YulParser.Yul_function_callContext):
@@ -495,14 +541,13 @@ class YulEasyCryptListener(YulListener):
         self.nonce += 1
         cur_node.literal_value = "!" + ctx.getText()
         if ctx.parentCtx.parentCtx.getRuleIndex() == YulParser.RULE_yul_assignment or ctx.parentCtx.parentCtx.getRuleIndex() == YulParser.RULE_yul_variable_declaration:
-            self.ec_node.rhs = cur_node
+            self.ec_node.parent.rhs = cur_node
         self.ec_node = cur_node
 
         #self.built_string += ctx.getText()
 
     # Exit a parse tree produced by YulParser#yul_literal.
     def exitYul_literal(self, ctx:YulParser.Yul_literalContext):
-        pass
         self.ec_node = self.ec_node.parent
 
     # Enter a parse tree produced by YulParser#yul_number_literal.
@@ -569,7 +614,10 @@ class YulEasyCryptListener(YulListener):
                 self.ec_node.lhs.append(ctx.getText())
             return
         if (ctx.parentCtx.parentCtx.getRuleIndex() == YulParser.RULE_yul_variable_declaration):
-            self.ec_node.lhs.append(ctx.getText())
+            if ctx.parentCtx.getRuleIndex() == YulParser.RULE_yul_expression:
+                self.ec_node.parent.rhs.literal_value =  ctx.getText()
+            else:
+                self.ec_node.lhs.append(ctx.getText())
             return
         if (ctx.parentCtx.getRuleIndex() == YulParser.RULE_yul_expression):
             curr_node = IdentifierNode("id" + str(self.nonce), parent = self.ec_node)
