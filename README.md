@@ -1,2 +1,3 @@
-# yul_to_easycrypt
-Transpiler fro Yul to EasyCrypt
+# Yul to EasyCrypt transpiler
+
+Work in progress: We implement a converter for a subset of Yul language to EasyCrypt module system.
