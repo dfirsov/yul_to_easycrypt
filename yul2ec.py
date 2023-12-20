@@ -30,6 +30,7 @@ def main():
     printer.ec_node.prepare()
     ec_code = printer.ec_node.to_str()
 
+    print(ec_code)
     with open(sys.argv[2], 'w') as file:
         file.write(ec_code)
 

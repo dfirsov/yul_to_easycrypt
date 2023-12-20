@@ -20,24 +20,32 @@ class PrintableNode(Node):
     def find_parent_proc(self,cur):
         if isinstance (cur.parent, ProcNode):
             return cur.parent
-        else:
+        elif cur.parent != None:
             return self.find_parent_proc(cur.parent)
-        # pass
+        else:
+            return None
+
+
+
 
     def indent(self, text, amount, ch=' '):
         return textwrap.indent(text, amount * ch)
 
+class EmptyNode(PrintableNode):
+    pass
 
 class RootNode(PrintableNode):
     def __init__(self, name, sep = '/', **kwargs):
         super().__init__(name,sep, **kwargs)
-        self.proc_list = ["mload","mstore","mstore8","keccak256","add","lt", "addmod","sub","iszero"]
+        self.proc_list = ["mload","mstore","mstore8","keccak256","add","lt", "addmod","sub","iszero","mul", "div","mod","or","eq","gas","and","shr","shl","gt","verbatim_2i_1o"]
+        self.str_constants = []
         
     def to_str(self):
         import_module = "require import AllCore.\nrequire import YulEasyCryptModel.\n\n"
+        constants = "\n".join(["op " + c + " : uint256." for c in self.str_constants])
         module_body = ("\n").join([c.to_str() for c in self.children])
         module_body = self.indent(module_body,4,' ')        
-        return import_module + "module YulExtract = {\n    var m : memory\n \n" + self.pre_setup() + module_body + "\n}."
+        return import_module + "\n" + constants + "\n" + "module YulExtract = {\n    var m : memory\n \n" + self.pre_setup() + module_body + "\n}."
 
     def pre_setup(self):
         funcs = """
@@ -60,16 +68,49 @@ class RootNode(PrintableNode):
     }
     proc sub(v1: uint256, v2 : uint256) : uint256 = {
       return sub(v1,v2);  
-    }                
+    }
+    proc mul(v1: uint256, v2 : uint256) : uint256 = {
+      return mul(v1,v2);  
+    }
+    proc mod(v1: uint256, v2 : uint256) : uint256 = {
+      return mod(v1,v2);  
+    }
+    proc or(v1: uint256, v2 : uint256) : uint256 = {
+      return or(v1,v2);  
+    }        
+    proc div(v1: uint256, v2 : uint256) : uint256 = {
+      return div(v1,v2);  
+    }        
     proc lt(v1: uint256, v2 : uint256) : uint256 = {
       return lt(v1,v2);  
     }
+    proc gt(v1: uint256, v2 : uint256) : uint256 = {
+      return gt(v1,v2);  
+    }        
     proc iszero(v: uint256) : uint256 = {
       return iszero(v);  
     }        
     proc addmod(v1: uint256, v2 : uint256, mod: uint256) : uint256 = {
       return addmod(v1,v2,mod);  
     }
+    proc eq(v1: uint256, v2 : uint256) : uint256 = {
+      return eq(v1,v2);  
+    }
+    proc and(v1: uint256, v2 : uint256) : uint256 = {
+      return and(v1,v2);  
+    }
+    proc shl(v1: uint256, v2 : uint256) : uint256 = {
+      return shl(v1,v2);  
+    }
+    proc shr(v1: uint256, v2 : uint256) : uint256 = {
+      return shr(v1,v2);  
+    }
+    proc gas() : uint256 = { 
+        return witness;
+    }
+    proc verbatim_2i_1o(f : uint256, a1 : uint256, a2 : uint256) : uint256 = { 
+        return witness;
+    }        
 """
         return funcs
 
@@ -121,6 +162,9 @@ class LiteralNode(PrintableNode):
         return ""
     def is_proc(self):
         return False
+    def setLiteralValue(self, v):
+        self.literal_value = v
+
 
 
 class FunctionCallNode(PrintableNode):
@@ -154,7 +198,7 @@ class FunctionCallNode(PrintableNode):
         return s
 
     def prepare(self):
-        if isinstance (self.parent.parent, FunctionCallNode) or isinstance (self.parent.parent, AssNode) or isinstance(self.parent.parent, VarDeclNode) or isinstance(self.parent.parent, IfNode) :
+        if isinstance (self.parent.parent, FunctionCallNode) or isinstance (self.parent.parent, AssNode) or isinstance(self.parent.parent, VarDeclNode) or isinstance(self.parent.parent, IfNode) or isinstance(self.parent.parent, SwitchNode) :
             if not self.ass_child:
                 proc = self.find_parent_proc(self)
                 proc.proc_vars.append(self.name)
@@ -220,9 +264,13 @@ class VarDeclNode(PrintableNode):
         proc.proc_vars += self.lhs
         super().prepare()
 
+
+
 class IfNode(PrintableNode):
     def __init__(self, name, sep = '/', **kwargs):
         super().__init__(name,sep, **kwargs)
+
+        
 
     def to_str(self):
         s = self.children[0].pre()
@@ -230,6 +278,48 @@ class IfNode(PrintableNode):
         if_body = self.indent(if_body,4,' ')
         s = s + "if(as_bool " + self.children[0].flat() + "){\n" + if_body  + "\n}"
         return s
+
+
+class CaseNode(PrintableNode):
+    def __init__(self, name, sep = '/', **kwargs):
+        super().__init__(name,sep, **kwargs)
+        self.cond = None
+        self.else_branch = None
+
+    def to_str(self):
+        case_lit = self.children[0].to_str()
+        case_body = self.indent(self.children[1].to_str(),4,' ')
+
+        s = "if(as_bool (eq(" + self.cond.flat() + "," + case_lit  + "))"  + "){\n" + case_body  + "\n}"
+        if self.else_branch != None:
+            s += "else{\n" + self.indent(self.else_branch.to_str(),4,' ') + "\n}"
+        return s        
+
+class SwitchNode(PrintableNode):
+    def __init__(self, name, sep = '/', **kwargs):
+        super().__init__(name,sep, **kwargs)
+
+    def to_str(self):
+        s = self.children[0].pre()
+        prev = None
+        for c in self.children[1:]:
+            c.cond = self.children[0]
+
+            if prev != None:
+                prev.else_branch = c
+
+            prev = c
+
+
+        s += self.children[1].to_str()
+        
+        return s
+
+
+    def prepare(self):
+        super().prepare()
+
+
 
 class ForNode(PrintableNode):
     def __init__(self, name, sep = '/', **kwargs):
@@ -246,7 +336,6 @@ class ForNode(PrintableNode):
 
     def prepare(self):
         if isinstance(self.children[1].children[0], FunctionCallNode):
-            print("!")
             proc = self.find_parent_proc(self)
             proc.proc_vars.append(self.children[1].var_repr())
         super().prepare()
@@ -269,12 +358,17 @@ class ProcNode(PrintableNode):
     
     def to_str(self):
         cur_vars = [i[0] for i in self.proc_return_type] + self.proc_vars
+        cur_vars = [ ("_" if c[0].isupper() else "") + c for c in cur_vars]
 
         rett = " * ".join(["uint256" for _ in range(len(self.proc_return_type))])
         proc_body = ("\n").join([c.to_str() for c in self.children])
         proc_body = self.indent(proc_body,4,' ')
 
-        proc_return_value = ", ".join(i[0] for i in self.proc_return_type)
+        cur_vars = list(dict.fromkeys(cur_vars))
+
+        proc_return_value = [("_" if i[0].isupper() else "") + i[0] for i in self.proc_return_type]
+        proc_return_value = ", ".join(proc_return_value)
+        
         if len(self.proc_return_type) > 1:
             proc_return_value = "(" + proc_return_value + ")"
         elif len(self.proc_return_type) == 0:
@@ -303,8 +397,20 @@ class YulEasyCryptListener(YulListener):
         super(YulEasyCryptListener, self).__init__(*args, **kwargs)
         self.ec_node = RootNode("root")
         self.root_node = self.ec_node
+        
+        self.main_proc = ProcNode("main",parent = self.root_node)
+        self.main_proc.proc_name = "main"
+        
         self.nonce = 0
         self.proc_list = []
+
+    def set_main_if_orphan(self):
+        pass
+        # if (self.ec_node.find_parent_proc(self.ec_node) == None):
+        #     self.ec_node >> self.main_proc
+        #     self.ec_node = self.main_proc
+
+        
 
 
 
@@ -350,27 +456,34 @@ class YulEasyCryptListener(YulListener):
 
     # Enter a parse tree produced by YulParser#yul_switch.
     def enterYul_switch(self, ctx:YulParser.Yul_switchContext):
-        pass
+        swnode = SwitchNode("switch" + str(self.nonce), parent = self.ec_node)
+        self.ec_node = swnode
+        self.nonce += 1
+
 
     # Exit a parse tree produced by YulParser#yul_switch.
     def exitYul_switch(self, ctx:YulParser.Yul_switchContext):
-        pass
+        self.ec_node = self.ec_node.parent
 
     # Enter a parse tree produced by YulParser#yul_case.
     def enterYul_case(self, ctx:YulParser.Yul_caseContext):
-        pass
+        case_node = CaseNode("case" + str(self.nonce), parent = self.ec_node)
+        self.ec_node = case_node
+        self.nonce += 1
 
     # Exit a parse tree produced by YulParser#yul_case.
     def exitYul_case(self, ctx:YulParser.Yul_caseContext):
-        pass
+        self.ec_node = self.ec_node.parent
 
     # Enter a parse tree produced by YulParser#yul_default.
     def enterYul_default(self, ctx:YulParser.Yul_defaultContext):
-        pass
+        block_node = BlockNode("block" + str(self.nonce), parent = self.ec_node)
+        self.nonce += 1
+        self.ec_node = block_node
 
     # Exit a parse tree produced by YulParser#yul_default.
     def exitYul_default(self, ctx:YulParser.Yul_defaultContext):
-        pass
+        self.ec_node = self.ec_node.parent
 
     # Enter a parse tree produced by YulParser#yul_for_loop.
     def enterYul_for_loop(self, ctx:YulParser.Yul_for_loopContext):
@@ -513,15 +626,16 @@ class YulEasyCryptListener(YulListener):
         expr_node = ExpressionNode("expr" + str(self.nonce), parent = self.ec_node)
         self.nonce += 1
         self.ec_node = expr_node
-        #self.built_string += ctx.getText()
+
 
     # Exit a parse tree produced by YulParser#yul_expression.
     def exitYul_expression(self, ctx:YulParser.Yul_expressionContext):
         self.ec_node = self.ec_node.parent
-        #self.built_string += "],"
+
 
     # Enter a parse tree produced by YulParser#yul_function_call.
     def enterYul_function_call(self, ctx:YulParser.Yul_function_callContext):
+        self.set_main_if_orphan()        
         curr_node = FunctionCallNode("func" + str(self.nonce), parent = self.ec_node)
         self.nonce += 1
         if ctx.parentCtx.parentCtx.getRuleIndex() == YulParser.RULE_yul_assignment or ctx.parentCtx.parentCtx.getRuleIndex() == YulParser.RULE_yul_variable_declaration :
@@ -539,7 +653,6 @@ class YulEasyCryptListener(YulListener):
     def enterYul_literal(self, ctx:YulParser.Yul_literalContext):
         cur_node = LiteralNode("literal" + str(self.nonce), parent = self.ec_node)
         self.nonce += 1
-        cur_node.literal_value = "!" + ctx.getText()
         if ctx.parentCtx.parentCtx.getRuleIndex() == YulParser.RULE_yul_assignment or ctx.parentCtx.parentCtx.getRuleIndex() == YulParser.RULE_yul_variable_declaration:
             self.ec_node.parent.rhs = cur_node
         self.ec_node = cur_node
@@ -557,8 +670,7 @@ class YulEasyCryptListener(YulListener):
 
     # Exit a parse tree produced by YulParser#yul_number_literal.
     def exitYul_number_literal(self, ctx:YulParser.Yul_number_literalContext):
-        pass
-        #self.built_string += "],"
+        self.ec_node.setLiteralValue("!" + ctx.getText())
 
     # Enter a parse tree produced by YulParser#yul_true_literal.
     def enterYul_true_literal(self, ctx:YulParser.Yul_true_literalContext):
@@ -576,7 +688,7 @@ class YulEasyCryptListener(YulListener):
 
     # Enter a parse tree produced by YulParser#yul_hex_number.
     def enterYul_hex_number(self, ctx:YulParser.Yul_hex_numberContext):
-        self.ec_node.literal_value = "!" + str (int(ctx.getText(), 16))
+        self.ec_node.setLiteralValue("!" + str (int(ctx.getText(), 16)))
 
     # Exit a parse tree produced by YulParser#yul_hex_number.
     def exitYul_hex_number(self, ctx:YulParser.Yul_hex_numberContext):
@@ -601,6 +713,7 @@ class YulEasyCryptListener(YulListener):
 
     # Enter a parse tree produced by YulParser#yul_identifier.
     def enterYul_identifier(self, ctx:YulParser.Yul_identifierContext):
+        
         if (ctx.parentCtx.parentCtx.getRuleIndex() == YulParser.RULE_yul_function_arg_list):
             self.ec_node.proc_args.append((ctx.getText(), None))
             return
@@ -609,15 +722,16 @@ class YulEasyCryptListener(YulListener):
             return
         if (ctx.parentCtx.parentCtx.getRuleIndex() == YulParser.RULE_yul_assignment):
             if ctx.parentCtx.getRuleIndex() == YulParser.RULE_yul_expression:
-                self.ec_node.rhs.literal_value =  ctx.getText()
+                self.ec_node.parent.rhs.setLiteralValue(ctx.getText())
             else:
-                self.ec_node.lhs.append(ctx.getText())
+                self.ec_node.lhs.append(("_" if ctx.getText()[0].isupper() else "") + ctx.getText())
+
             return
         if (ctx.parentCtx.parentCtx.getRuleIndex() == YulParser.RULE_yul_variable_declaration):
             if ctx.parentCtx.getRuleIndex() == YulParser.RULE_yul_expression:
-                self.ec_node.parent.rhs.literal_value =  ctx.getText()
+                self.ec_node.parent.rhs.setLiteralValue(ctx.getText())
             else:
-                self.ec_node.lhs.append(ctx.getText())
+                self.ec_node.lhs.append(("_" if ctx.getText()[0].isupper() else "") + ctx.getText())
             return
         if (ctx.parentCtx.getRuleIndex() == YulParser.RULE_yul_expression):
             curr_node = IdentifierNode("id" + str(self.nonce), parent = self.ec_node)
@@ -631,10 +745,9 @@ class YulEasyCryptListener(YulListener):
 
     # Enter a parse tree produced by YulParser#yul_string_literal.
     def enterYul_string_literal(self, ctx:YulParser.Yul_string_literalContext):
-        pass
-        # note: get rid of quotes around string literal
-        # if ctx.parentCtx.getText() != "object":
-        #self.built_string += ctx.parentCtx.getText()
+        if (ctx.parentCtx.getRuleIndex() != YulParser.RULE_yul_object):        
+            self.ec_node.root.str_constants.append(ctx.getText().strip('"'))
+            self.ec_node.setLiteralValue(ctx.getText().strip('"'))
         
     # Exit a parse tree produced by YulParser#yul_string_literal.
     def exitYul_string_literal(self, ctx:YulParser.Yul_string_literalContext):
