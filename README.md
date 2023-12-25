@@ -56,6 +56,11 @@ module YulExtract = {
       return lt(v1,v2);  
     }
 
+   proc add(v1: uint256, v2 : uint256) : uint256 = {
+      return lt(v1,v2);  
+    }
+
+
     proc iszero(v1: uint256) : uint256 = {
       return iszero(v1);  
     }
