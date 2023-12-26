@@ -7,6 +7,8 @@ op div_by2s (i : int) : int.
 axiom div_by2s1 u : 0 < u = 0 < (div_by2s u).
 axiom div_by2s2 u v : odd v => gcd (div_by2s u) v = gcd u v.
 axiom div_by2s3 u : odd (div_by2s u).
+axiom div_by2s4 u : 0 < u => even u =>  (div_by2s u) < u.
+axiom div_by2s5 u : u < 0 => even u =>  u < (div_by2s u).
 
 
 (* 4/ if u and v are both odd then u-v is even and |u - v| < max(u,v) *)
@@ -72,6 +74,42 @@ module GCDAlgs = {
 }.
 
 
+
+lemma main3_term : phoare [GCDAlgs.main3 : odd u /\ 0 < u /\ 0 < v ==> true ] = 1%r.
+proc. sp.
+while (t = u - v /\ even t /\ odd u /\ odd v /\ 0 < u /\ 0 < v) (max u v).
+progress.    
+wp. skip. progress.
+case (v{hr} < u{hr}). progress.
+    smt.
+    smt.
+    smt.
+    smt. smt. smt.
+pose x := div_by2s (u{hr} - v{hr}).     
+case (v{hr} < u{hr}). progress.
+have f1 : 0 < x < u{hr} - v{hr}. split. smt.  smt. 
+smt.
+    move => q.
+ case (v{hr} <= x).
+   move => mh.
+      smt.
+progress.
+have f1 : 0 < -x < v{hr} - u{hr}. split. smt.
+    
+progress.
+     have : u{hr} - v{hr} < x. smt.
+    smt.
+    smt.    
+    skip.
+progress.
+smt.
+    smt. smt. smt.
+qed.    
+
+
+
+    
+    
 lemma gcd_alg_eq : equiv [ GCDAlgs.main1 ~ GCDAlgs.main2  : ={arg} 
   ==> ={res} ].
 proof. proc.
@@ -236,3 +274,12 @@ smt.
 smt.
 smt.
 qed.
+
+
+lemma main3_correct_and_terminating u_in v_in : phoare [ GCDAlgs.main3 : arg = (u_in, v_in) /\ 0 < u_in /\ 0 < v_in
+ /\ odd u ==> res = gcd u_in v_in ] = 1%r.
+phoare split ! 1%r 0%r. smt().
+conseq main3_term. smt().
+    hoare. simplify.
+apply gcd_odd_alg.
+qed.    
