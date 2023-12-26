@@ -9,12 +9,18 @@ axiom div_by2s2 u v : odd v => gcd (div_by2s u) v = gcd u v.
 axiom div_by2s3 u : odd (div_by2s u).
 axiom div_by2s4 u : 0 < u => even u =>  (div_by2s u) < u.
 axiom div_by2s5 u : u < 0 => even u =>  u < (div_by2s u).
-
-
-(* 4/ if u and v are both odd then u-v is even and |u - v| < max(u,v) *)
+axiom div_by2s6 u : even u =>  div_by2s (u %/ 2) = div_by2s u.
+axiom div_by2s7 u : odd u =>  div_by2s u = u.
 
 
 module GCDAlgs = {
+
+  proc simplify_t(t:int) = {
+      while (even t){
+        t <- t %/ 2;
+      }
+      return t;
+  }
 
   proc main1(u : int, v : int) = {
     var k, t;
@@ -71,8 +77,51 @@ module GCDAlgs = {
     return u;
   }
 
+
+  proc main4(u : int, v : int) = {
+    var t <- 0;
+    v <@ simplify_t(v);
+    t <- u - v;
+    while (t <> 0){     
+      t <@ simplify_t(t);
+      (u,v) <- if v < u then (t,v) else (u,-t);
+      t <- u - v;
+    }
+    return u;
+  }
+  
 }.
 
+
+lemma simplify_divby2s t_in :
+   phoare [ GCDAlgs.simplify_t : t = t_in /\ t <> 0 ==> res = div_by2s t_in ] = 1%r.
+proc.
+while (div_by2s t = div_by2s t_in /\ t <> 0) `|t|.
+progress.
+wp. skip. progress. smt. smt.
+ case (t{hr} < 0). progress.
+    have ->: `|t{hr} %/ 2| = - (t{hr} %/ 2). smt.
+    have ->: `|t{hr}| = - (t{hr}). smt.
+    smt.
+    progress.
+    have ->: `|t{hr} %/ 2| =  (t{hr} %/ 2). smt.
+    have ->: `|t{hr}| =  (t{hr}). smt.
+    smt.    
+skip. progress. smt. smt. 
+qed.    
+
+
+lemma main3_main4 u_in v_in : equiv [ GCDAlgs.main3 ~ GCDAlgs.main4 : arg{1} = (u_in, v_in) /\ 0 < u_in /\ 0 < v_in
+ /\ odd u_in /\ ={arg} ==> ={res} ].
+proc.
+seq 3 3 : (={t,u,v}).
+wp.
+ecall {2} (simplify_divby2s v{2}). wp.
+skip. progress. smt.
+while (={t,u,v}). wp.
+ecall {2} (simplify_divby2s t{2}). wp.
+skip. progress. skip. progress.
+qed.    
 
 
 lemma main3_term : phoare [GCDAlgs.main3 : odd u /\ 0 < u /\ 0 < v ==> true ] = 1%r.
@@ -94,8 +143,7 @@ smt.
    move => mh.
       smt.
 progress.
-have f1 : 0 < -x < v{hr} - u{hr}. split. smt.
-    
+have f1 : 0 < -x < v{hr} - u{hr}. split. smt.    
 progress.
      have : u{hr} - v{hr} < x. smt.
     smt.
@@ -105,7 +153,6 @@ progress.
 smt.
     smt. smt. smt.
 qed.    
-
 
 
     
@@ -276,10 +323,21 @@ smt.
 qed.
 
 
-lemma main3_correct_and_terminating u_in v_in : phoare [ GCDAlgs.main3 : arg = (u_in, v_in) /\ 0 < u_in /\ 0 < v_in
- /\ odd u ==> res = gcd u_in v_in ] = 1%r.
+lemma main3_correct_and_terminating u_in v_in : phoare [ GCDAlgs.main3 : arg = (u_in, v_in) /\ 0 < u_in /\ 0 < v_in /\ odd u ==> res = gcd u_in v_in ] = 1%r.
 phoare split ! 1%r 0%r. smt().
 conseq main3_term. smt().
     hoare. simplify.
 apply gcd_odd_alg.
 qed.    
+
+
+lemma main4_correct_and_terminating u_in v_in : phoare [ GCDAlgs.main4 : arg = (u_in, v_in) /\ 0 < u_in /\ 0 < v_in /\ odd u ==> res = gcd u_in v_in ] = 1%r.
+bypr.
+progress.
+ have <-: Pr[GCDAlgs.main3(u{m}, v{m}) @ &m : res = gcd u_in v_in] = 1%r.
+ byphoare (_: arg = (u_in, v_in) /\ 0 < u_in /\ 0 < v_in /\ odd u  ==> _).
+ apply main3_correct_and_terminating. smt(). auto.
+byequiv. symmetry.
+conseq (main3_main4 u_in v_in). smt(). smt(). auto. auto.
+qed.    
+
