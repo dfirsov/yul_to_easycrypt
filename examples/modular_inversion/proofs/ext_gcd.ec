@@ -198,19 +198,14 @@ qed.
 
 
 
-lemma gcd_t_simp_eq t1_in t2_in t3_in  u1 u2 u3 v1 v2 v3 u_in v_in : 
-  equiv [ ExtGCD.opt_simplify_ts ~ ExtGCD.opt_simplify_ts : ={arg} /\ arg{1} = (t1_in,t2_in,t3_in,u_in,v_in){1} /\ odd u{1} /\ t3{1} <> 0
- /\ (u_in * t1 + v_in * t2 = t3
- /\ u_in * u1 + v_in * u2 = u3
- /\ u_in * v1 + v_in * v2 = v3){1} 
-  ==> ={res} /\
-   (u_in * res.`1 + v_in * res.`2 = res.`3 /\ res.`3 <> 0  /\ res.`3 < 0 = t3_in < 0){1} ].  admitted.
-
-
 lemma gcd_t_simp_eq2 t3_in  : 
   equiv [ ExtGCD.opt_simplify_ts ~ ExtGCD.opt_simplify_ts : t3_in = t3{1} /\ ={t1,t2,u,v} /\ `|t3{1}| = t3{2}
-  ==> res{1}.`1 = res{2}.`1 /\ res{1}.`2 = res{2}.`2 /\ `|res{1}.`3| = res{2}.`3
-     /\ 0 < t3_in = 0 < res{1}.`3  ].  admitted.
+  ==> `|res{1}.`3| = res{2}.`3 /\ res{1}.`1 = res{2}.`1 /\ res{1}.`2 = res{2}.`2 /\ 0 < t3_in = 0 < res{1}.`3 /\ (t3_in <> 0) = (res{1}.`3 <> 0)  ].  admitted.
+
+
+lemma gcd_t_simp_eq3 t3_in  : 
+  equiv [ ExtGCD.opt_simplify_ts ~ ExtGCD.opt_simplify_ts : t3_in = t3{1} /\ ={arg} 
+  ==>  0 < t3_in = 0 < res{1}.`3 /\ ={res}  ].  admitted.
 
 
 
