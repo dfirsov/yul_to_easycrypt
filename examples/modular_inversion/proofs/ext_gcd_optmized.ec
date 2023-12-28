@@ -1,6 +1,9 @@
 require import AllCore IntDiv Int.
 require import Ext_gcd Gcd_props.
 
+op r : int.
+axiom r_pos : 0 < r.
+axiom r_odd : odd r.
 module OptExtGcd = {
 
   proc simplify_ts(t2:int,t3: int,u:int,v:int) = {
@@ -164,35 +167,35 @@ module OptExtGcd = {
   }  
 
 
-    proc main6(u : int, v : int) = {
-      var u2,u3,v2,v3,t2,t3;
+  proc main6(u : int, v : int) = {
+    var u2,u3,v2,v3,t2,t3;
 
-      (u2,u3) <- (0, u);
-      (v2,v3) <- (u-1, v);
-      (t2,t3) <- (1, v);
+    (u2,u3) <- (0, u);
+    (v2,v3) <- (u-1, v);
+    (t2,t3) <- (1, v);
 
-      (t2,t3) <@ simplify_ts_pos(t2, v, u, v);
-      (v2, v3) <- (u-t2, t3);
+    (t2,t3) <@ simplify_ts_pos(t2, v, u, v);
+    (v2, v3) <- (u-t2, t3);
 
-      (t2, t3) <- (-v2, `|u3-v3|);
+    (t2, t3) <- (-v2, `|u3-v3|);
 
-      while (t3 <> 0){
-        (t2,t3) <@ simplify_ts_pos(t2, t3, u, v);
-        if (v3 < u3){
-          (u2, u3) <- (t2, t3);
-        }else{
-          (v2, v3) <- (u-t2, t3);
-        }
+    while (t3 <> 0){
+      (t2,t3) <@ simplify_ts_pos(t2, t3, u, v);
+      if (v3 < u3){
+        (u2, u3) <- (t2, t3);
+      }else{
+        (v2, v3) <- (u-t2, t3);
+      }
 
-        t2 <- u2 - v2;
-        if (v3 < u3){
-          t3 <- u3 - v3;
-        }else{
-          t3 <- v3 - u3;
-        }
+      t2 <- u2 - v2;
+      if (v3 < u3){
+        t3 <- u3 - v3;
+      }else{
+        t3 <- v3 - u3;
+      }
 
-       }
-      return (-u2, u3);
+    }
+     return (-u2, u3);
   }
 
 
@@ -231,12 +234,98 @@ module OptExtGcd = {
 
        }
       return (u-u2, u3);
-  }      
+  }
+
+
+    proc main8(u : int, v : int) = {
+      var u2,u3,v2,v3,t2,t3;
+
+      (u2,u3) <- (0, u);
+      (v2,v3) <- (u-1, v);
+      (t2,t3) <- (1, v);
+
+      (t2,t3) <@ simplify_ts_pos(t2, v, u, v);
+      (v2, v3) <- (u-t2, t3);
+
+      if (v3 < u3){
+        t3 <- u3 - v3;
+      }else{
+        t3 <- v3 - u3;
+      }
+      t2 <- u-v2;
+
+      while (t3 <> 0){
+        (t2,t3) <@ simplify_ts_pos(t2, t3, u, v);
+
+        if (v3 < u3){
+          (u2, u3) <- (t2, t3);
+        }else{
+          (v2, v3) <- (u-t2, t3);
+        }
+
+        if (u2 < v2){
+            t2 <- u + (u2 - v2);
+        }else{
+            t2 <- u2 - v2;          
+        }
+
+        if (v3 < u3){
+          t3 <- u3 - v3;
+        }else{
+          t3 <- v3 - u3;
+        }
+
+       }
+      return (u-u2, u3);
+  }  
+
+
+    proc main9(u : int, v : int) = {
+      var u2,u3,v2,v3,t2,t3;
+
+      (u2,u3) <- (0, u);
+      (v2,v3) <- (u-r, v);
+      (t2,t3) <- (r, v);
+
+      (t2,t3) <@ simplify_ts_pos(t2, v, u, v);
+      (v2, v3) <- (u-t2, t3);
+
+      if (v3 < u3){
+        t3 <- u3 - v3;
+      }else{
+        t3 <- v3 - u3;
+      }
+      t2 <- u-v2;
+
+      while (t3 <> 0){
+        (t2,t3) <@ simplify_ts_pos(t2, t3, u, v);
+
+        if (v3 < u3){
+          (u2, u3) <- (t2, t3);
+        }else{
+          (v2, v3) <- (u-t2, t3);
+        }
+
+        if (u2 < v2){
+            t2 <- u + (u2 - v2);
+        }else{
+            t2 <- u2 - v2;          
+        }
+
+        if (v3 < u3){
+          t3 <- u3 - v3;
+        }else{
+          t3 <- v3 - u3;
+        }
+
+       }
+      return (u-u2, u3);
+  }  
+
 }.
 
 
-
-lemma opt_6_eq_aux m x' y' :  odd m =>
+lemma nosmt opt_6_eq_aux m x' y' :  odd m =>
     2 < m
  =>  (2 * x') %% m = (2 * y') %% m
  => x' %% m = y' %% m. 
@@ -279,6 +368,247 @@ have o3 :  2 * x' %% m =  (2 * (x' %% m) - m) . smt (@Int @IntDiv).
 have o4 :  2 * y' %% m =  (2 * (y' %% m) - m) . smt (@Int @IntDiv).
 smt.
 qed.
+
+
+lemma nosmt opt_8_aux (a b : int) : even b =>
+     a * (b %/ 2) = (a * b) %/2.
+progress.    
+have <-: 2 * (b %/ 2) = b. smt (@Int @IntDiv).
+have ->: a * (2 * (b %/ 2)) %/ 2 = 2 * a * (b %/ 2) %/ 2.
+    smt (@Int @IntDiv).
+have ->: a * ((2 * (b %/ 2)) %/ 2) = 2 * a * ( (b %/ 2)) %/ 2.
+smt (@Int @IntDiv).    auto.
+qed.    
+
+lemma opt_8_eq u_in  : odd r =>
+     equiv [ OptExtGcd.simplify_ts_pos ~ OptExtGcd.simplify_ts_pos :  odd u{1} /\ 2 < u{1} /\
+      r * t2{1} %% u{1} = t2{2} %% u{1} /\ ={t3,u,v} /\ u{1} = u_in ==> r * res{1}.`1 %% u_in = res{2}.`1 %% u_in /\ res{1}.`2 = res{2}.`2 ].
+move => rodd. proc.  simplify.
+while (r * t2{1} %% u{1} = t2{2} %% u{1} /\ ={t3, u, v} /\ odd u{1} /\ u{1} = u_in /\ 2 < u{1}).
+wp. skip. progress.
+apply opt_6_eq_aux. auto.  auto.
+    have ->: 2 * (r * (t2{1} %/ 2)) = r * t2{1}.
+       have q : even (r * t2{1} ). smt.
+      have -> : (r * (t2{1} %/ 2))  = (r * t2{1}) %/ 2. smt (opt_8_aux).
+    smt (opt_8_aux).
+   
+    have ->: 2 * (t2{2} %/ 2) = t2{2}. smt (opt_8_aux). rewrite - H. auto.
+apply opt_6_eq_aux. auto. auto.
+have ->: 2 * (r * ((t2{1} + u{2}) %/ 2)) = (r * (t2{1} + u{2}) ).
+    rewrite opt_8_aux. smt.
+    rewrite opt_8_aux.
+    have f : even (t2{1} + u{2}). smt .
+    smt.
+smt.    
+    
+
+
+have ->: r * (t2{1} + u{2}) %% u{2} = r * t2{1} %% u{2}.
+ have ->: r * (t2{1} + u{2}) = r * t2{1} + r * u{2}. smt.
+smt (@Int @IntDiv).    
+    
+have ->: 2 * (t2{2} %/ 2) = t2{2}.  smt.
+smt().
+apply opt_6_eq_aux. auto. auto.    
+have ->: 2 * (r * (t2{1} %/ 2)) = r * t2{1}.
+    rewrite opt_8_aux. auto.
+        rewrite opt_8_aux. auto. smt.
+    smt.
+    
+have ->: 2 * ((t2{2} + u{2}) %/ 2) = (t2{2} + u{2}).
+rewrite opt_8_aux. auto. smt. smt.
+smt(@Int @IntDiv).    
+apply opt_6_eq_aux. auto. auto.    
+rewrite opt_8_aux. auto. smt.
+rewrite opt_8_aux. auto.
+  have f : even (t2{1} + u{2}). smt.
+    smt.
+    
+    have ->: 2 * ((t2{2} + u{2}) %/ 2) = (t2{2} + u{2}).
+      have f : even (t2{2} + u{2}). smt.
+    smt.
+have ->: 2 * (r * (t2{1} + u{2}) ) %/2 = (r * (t2{1} + u{2}) ). smt(@Int @IntDiv).
+have ->: r * (t2{1} + u{2}) = r * t2{1} + r * u{2}. smt.
+have ->: (r * t2{1} + r * u{2}) %% u{2} = r * t2{1} %% u{2}.
+smt.
+smt.
+skip.
+progress.
+qed.
+
+
+
+lemma opt_8 u_in : equiv[ OptExtGcd.main8 ~ OptExtGcd.main9
+    : ={arg} /\ u{1} = u_in /\ odd u_in /\ 2 < u_in ==> r * res{1}.`1 %% u_in =  res{2}.`1 %% u_in ].
+proc. 
+seq 3 3 : (={u,v,u3,v3,t3} 
+ /\ r * u2{1} %% u{1} = u2{2} %% u{2}
+ /\ r * v2{1} %% u{1} = v2{2} %% u{2}
+ /\ r * t2{1} %% u{1} = t2{2} %% u{2}  /\ u{1} = u_in /\ odd u_in /\ 2 < u_in).
+wp. skip. progress. clear H H0. smt (@Int @IntDiv).
+
+seq 1 1 : (={u,v,u3,v3,t3} 
+ /\ r * u2{1} %% u{1} = u2{2} %% u{2}
+ /\ r * v2{1} %% u{1} = v2{2} %% u{2}
+ /\ r * t2{1} %% u{1} = t2{2} %% u{2}  /\ u{1} = u_in /\ odd u_in /\ 2 < u_in).
+call (opt_8_eq u_in). apply r_odd. skip. progress. 
+seq 2 2 : (={u,v,u3,v3,t3} 
+ /\ r * u2{1} %% u{1} = u2{2} %% u{2}
+ /\ r * v2{1} %% u{1} = v2{2} %% u{2}
+ /\ r * t2{1} %% u{1} = t2{2} %% u{2}  /\ u{1} = u_in /\ odd u_in /\ 2 < u_in).
+wp. skip. progress.
+have ->: r * (u{2} - t2{1}) =
+    r * u{2} - r * t2{1}.     smt (@Int @IntDiv).
+have ->: (r * u{2} - r * t2{1}) %% u{2}
+  = (r * u{2} %% u{2} - (r * t2{1} %% u{2})) %% u{2}.
+smt (@Int @IntDiv).    
+ have ->: r * u{2} %% u{2} = 0. smt (@Int @IntDiv). simplify.
+ rewrite H1.
+have ->: (u{2} - t2{2}) %% u{2} = (u{2} %% u{2} - t2{2} %% u{2}) %% u{2}.
+smt (@Int @IntDiv).
+smt (@Int @IntDiv).      
+have ->: r * (u{2} - t2{1}) =
+    r * u{2} - r * t2{1}.     smt (@Int @IntDiv).
+have ->: (r * u{2} - r * t2{1}) %% u{2}
+  = (r * u{2} %% u{2} - (r * t2{1} %% u{2})) %% u{2}.
+smt (@Int @IntDiv).    
+ have ->: r * u{2} %% u{2} = 0. smt (@Int @IntDiv). simplify.
+ rewrite H1.
+have ->: (u{2} - t2{2}) %% u{2} = (u{2} %% u{2} - t2{2} %% u{2}) %% u{2}.
+smt (@Int @IntDiv).
+smt (@Int @IntDiv).      
+seq 1 1 : (={u,v,u3,v3,t3} 
+ /\ r * u2{1} %% u{1} = u2{2} %% u{2}
+ /\ r * v2{1} %% u{1} = v2{2} %% u{2}
+ /\ r * t2{1} %% u{1} = t2{2} %% u{2}  /\ u{1} = u_in /\ odd u_in /\ 2 < u_in).
+wp. skip. progress.
+have ->: (u{2} - v2{2}) %% u{2}
+   = (u{2} %% u{2} - v2{2} %% u{2}) %% u{2}.
+smt (@Int @IntDiv).
+rewrite - H0.
+have ->: u{2} %% u{2} = 0.  smt (@Int @IntDiv). simplify.
+have ->: r * (u{2} - v2{1}) =
+    r * u{2} - r * v2{1}.     smt (@Int @IntDiv).
+have ->: (r * u{2} - r * v2{1}) %% u{2}
+  = (r * u{2} %% u{2} - (r * v2{1} %% u{2})) %% u{2}.
+smt (@Int @IntDiv).    
+ have ->: r * u{2} %% u{2} = 0. smt (@Int @IntDiv). simplify. auto.
+while  (={u,v,u3,v3,t3} 
+ /\ r * u2{1} %% u{1} = u2{2} %% u{2}
+ /\ r * v2{1} %% u{1} = v2{2} %% u{2}
+ /\ r * t2{1} %% u{1} = t2{2} %% u{2}
+ /\ u{1} = u_in /\ odd u_in /\ 2 < u_in).
+seq 1 1 : (={u,v,u3,v3,t3} 
+ /\ r * u2{1} %% u{1} = u2{2} %% u{2}
+ /\ r * v2{1} %% u{1} = v2{2} %% u{2}
+ /\ r * t2{1} %% u{1} = t2{2} %% u{2}  /\ u{1} = u_in /\ odd u_in /\ 2 < u_in).
+call (opt_8_eq u_in). apply r_odd. skip. progress.
+seq 1 1 : (={u,v,u3,v3,t3} 
+ /\ r * u2{1} %% u{1} = u2{2} %% u{2}
+ /\ r * v2{1} %% u{1} = v2{2} %% u{2}
+ /\ r * t2{1} %% u{1} = t2{2} %% u{2}  /\ u{1} = u_in /\ odd u_in /\ 2 < u_in).
+wp. skip. progress.  
+have ->: r * (u{2} - t2{1}) =
+    r * u{2} - r * t2{1}.     smt (@Int @IntDiv).
+have ->: (r * u{2} - r * t2{1}) %% u{2}
+  = (r * u{2} %% u{2} - (r * t2{1} %% u{2})) %% u{2}.
+smt (@Int @IntDiv).    
+ have ->: r * u{2} %% u{2} = 0. smt (@Int @IntDiv). simplify.
+ rewrite H1.
+have ->: (u{2} - t2{2}) %% u{2} = (u{2} %% u{2} - t2{2} %% u{2}) %% u{2}.
+smt (@Int @IntDiv).
+smt (@Int @IntDiv).      
+seq 1 1 : (={u,v,u3,v3,t3} 
+ /\ r * u2{1} %% u{1} = u2{2} %% u{2}
+ /\ r * v2{1} %% u{1} = v2{2} %% u{2}
+ /\ r * t2{1} %% u{1} = t2{2} %% u{2}  /\ u{1} = u_in /\ odd u_in /\ 2 < u_in).
+wp. skip. progress.  
+have ->: r * (u{2} + (u2{1} - v2{1})) = (r * u{2} + r * (u2{1} - v2{1})).
+smt (@Int @IntDiv).
+have ->: (r * u{2} + r * (u2{1} - v2{1})) %% u{2}
+   = (r * u{2} %% u{2} + r * (u2{1} - v2{1}) %% u{2}) %% u{2}. 
+smt (@Int @IntDiv).
+have ->: r * u{2} %% u{2} = 0. smt (@Int @IntDiv). simplify.
+have ->: (u{2} + (u2{2} - v2{2})) %% u{2} =
+    (u{2} %% u{2} + (u2{2} - v2{2}) %% u{2}) %% u{2}.
+smt (@Int @IntDiv).
+    have ->: u{2} %% u{2} = 0. smt (@Int @IntDiv). simplify.
+have ->: (u2{2} - v2{2}) %% u{2}
+   = (u2{2} %% u{2} - v2{2} %% u{2}) %% u{2}.
+smt (@Int @IntDiv).
+rewrite - H0  - H.
+have ->: r * (u2{1} - v2{1}) =
+    r * u2{1} - r * v2{1}.     smt (@Int @IntDiv).
+have ->: (r * u2{1} - r * v2{1}) %% u{2}
+  = (r * u2{1} %% u{2} - r * v2{1} %% u{2}) %% u{2}.
+smt (@Int @IntDiv).    
+auto.
+have ->: (u{2} + (u2{2} - v2{2})) %% u{2} =
+    (u{2} %% u{2} + (u2{2} - v2{2}) %% u{2}) %% u{2}.
+smt (@Int @IntDiv).
+    have ->: u{2} %% u{2} = 0. smt (@Int @IntDiv). simplify.
+have ->: (u2{2} - v2{2}) %% u{2}
+   = (u2{2} %% u{2} - v2{2} %% u{2}) %% u{2}.
+smt (@Int @IntDiv).
+rewrite - H0  - H.
+have ->: r * (u2{1} - v2{1}) =
+    r * u2{1} - r * v2{1}.     smt (@Int @IntDiv).
+have ->: (r * u2{1} - r * v2{1}) %% u{2}
+  = (r * u2{1} %% u{2} - r * v2{1} %% u{2}) %% u{2}.
+smt (@Int @IntDiv).    
+smt (@Int @IntDiv).    
+have ->: r * (u{2} + (u2{1} - v2{1})) = (r * u{2} + r * (u2{1} - v2{1})).
+smt (@Int @IntDiv).
+have ->: (r * u{2} + r * (u2{1} - v2{1})) %% u{2}
+   = (r * u{2} %% u{2} + r * (u2{1} - v2{1}) %% u{2}) %% u{2}. 
+smt (@Int @IntDiv).
+have ->: r * u{2} %% u{2} = 0. smt (@Int @IntDiv). simplify.
+have ->: (u2{2} - v2{2}) %% u{2}
+   = (u2{2} %% u{2} - v2{2} %% u{2}) %% u{2}.
+smt (@Int @IntDiv).
+rewrite - H0  - H.
+have ->: r * (u2{1} - v2{1}) =
+    r * u2{1} - r * v2{1}.     smt (@Int @IntDiv).
+have ->: (r * u2{1} - r * v2{1}) %% u{2}
+  = (r * u2{1} %% u{2} - r * v2{1} %% u{2}) %% u{2}.
+smt (@Int @IntDiv).    
+smt (@Int @IntDiv).    
+have ->: (u2{2} - v2{2}) %% u{2}
+   = (u2{2} %% u{2} - v2{2} %% u{2}) %% u{2}.
+smt (@Int @IntDiv).
+rewrite - H0  - H.
+have ->: r * (u2{1} - v2{1}) =
+    r * u2{1} - r * v2{1}.     smt (@Int @IntDiv).
+have ->: (r * u2{1} - r * v2{1}) %% u{2}
+  = (r * u2{1} %% u{2} - r * v2{1} %% u{2}) %% u{2}.
+smt (@Int @IntDiv).    
+smt (@Int @IntDiv).    
+wp. skip. progress. 
+skip. progress. 
+have ->: (u{2} - u2_R) %% u{2}
+   = (u{2} %% u{2} - u2_R %% u{2}) %% u{2}.
+smt (@Int @IntDiv).
+have ->: r * (u{2} - u2_L) =
+    r * u{2} - r * u2_L.     smt (@Int @IntDiv).
+have ->: (r * u{2} - r * u2_L) %% u{2}
+  = (r * u{2} %% u{2} - r * u2_L %% u{2}) %% u{2}.
+smt (@Int @IntDiv).    
+have ->: r * u{2} %% u{2} = 0. smt (@Int @IntDiv).     simplify.
+have ->: u{2} %% u{2} = 0. smt (@Int @IntDiv).     simplify.
+smt().
+qed.  
+  
+
+lemma opt_7 : equiv[ OptExtGcd.main7 ~ OptExtGcd.main8
+    : ={arg} ==> ={res} ].
+proc. wp. sp. simplify.
+while (={u,v,t2,v2,u2,u3,v3,t3}).
+wp. simplify. call (_:true). sim. skip. progress.
+wp. call (_:true). sim. skip. progress;smt.
+qed.    
+
+
+
 
 
 lemma opt_6_eq u_in :
