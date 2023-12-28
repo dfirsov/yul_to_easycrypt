@@ -1,9 +1,6 @@
 require import AllCore IntDiv Int.
 require import Ext_gcd Gcd_props.
 
-op r : int.
-axiom r_pos : 0 < r.
-axiom r_odd : odd r.
 module OptExtGcd = {
 
   proc simplify_ts(t2:int,t3: int,u:int,v:int) = {
@@ -280,7 +277,7 @@ module OptExtGcd = {
   }  
 
 
-    proc main9(u : int, v : int) = {
+    proc main9(u : int, v : int, r : int) = {
       var u2,u3,v2,v3,t2,t3;
 
       (u2,u3) <- (0, u);
@@ -380,11 +377,11 @@ have ->: a * ((2 * (b %/ 2)) %/ 2) = 2 * a * ( (b %/ 2)) %/ 2.
 smt (@Int @IntDiv).    auto.
 qed.    
 
-lemma opt_8_eq u_in  : odd r =>
+lemma opt_8_eq u_in r  : 
      equiv [ OptExtGcd.simplify_ts_pos ~ OptExtGcd.simplify_ts_pos :  odd u{1} /\ 2 < u{1} /\
-      r * t2{1} %% u{1} = t2{2} %% u{1} /\ ={t3,u,v} /\ u{1} = u_in ==> r * res{1}.`1 %% u_in = res{2}.`1 %% u_in /\ res{1}.`2 = res{2}.`2 ].
-move => rodd. proc.  simplify.
-while (r * t2{1} %% u{1} = t2{2} %% u{1} /\ ={t3, u, v} /\ odd u{1} /\ u{1} = u_in /\ 2 < u{1}).
+      r * t2{1} %% u{1} = t2{2} %% u{1} /\ ={t3,u,v} /\ u{1} = u_in /\ odd r ==> r * res{1}.`1 %% u_in = res{2}.`1 %% u_in /\ res{1}.`2 = res{2}.`2 ].
+proc.  simplify.
+while (r * t2{1} %% u{1} = t2{2} %% u{1} /\ ={t3, u, v} /\ odd u{1} /\ u{1} = u_in /\ 2 < u{1} /\ odd r{1}).
 wp. skip. progress.
 apply opt_6_eq_aux. auto.  auto.
     have ->: 2 * (r * (t2{1} %/ 2)) = r * t2{1}.
@@ -400,21 +397,16 @@ have ->: 2 * (r * ((t2{1} + u{2}) %/ 2)) = (r * (t2{1} + u{2}) ).
     have f : even (t2{1} + u{2}). smt .
     smt.
 smt.    
-    
-
-
 have ->: r * (t2{1} + u{2}) %% u{2} = r * t2{1} %% u{2}.
  have ->: r * (t2{1} + u{2}) = r * t2{1} + r * u{2}. smt.
-smt (@Int @IntDiv).    
-    
+smt (@Int @IntDiv).       
 have ->: 2 * (t2{2} %/ 2) = t2{2}.  smt.
 smt().
 apply opt_6_eq_aux. auto. auto.    
 have ->: 2 * (r * (t2{1} %/ 2)) = r * t2{1}.
     rewrite opt_8_aux. auto.
         rewrite opt_8_aux. auto. smt.
-    smt.
-    
+    smt.    
 have ->: 2 * ((t2{2} + u{2}) %/ 2) = (t2{2} + u{2}).
 rewrite opt_8_aux. auto. smt. smt.
 smt(@Int @IntDiv).    
@@ -422,14 +414,14 @@ apply opt_6_eq_aux. auto. auto.
 rewrite opt_8_aux. auto. smt.
 rewrite opt_8_aux. auto.
   have f : even (t2{1} + u{2}). smt.
-    smt.
-    
+    smt.    
     have ->: 2 * ((t2{2} + u{2}) %/ 2) = (t2{2} + u{2}).
       have f : even (t2{2} + u{2}). smt.
     smt.
 have ->: 2 * (r * (t2{1} + u{2}) ) %/2 = (r * (t2{1} + u{2}) ). smt(@Int @IntDiv).
 have ->: r * (t2{1} + u{2}) = r * t2{1} + r * u{2}. smt.
 have ->: (r * t2{1} + r * u{2}) %% u{2} = r * t2{1} %% u{2}.
+clear H1 H2 H3 H4 H5 H6.    
 smt.
 smt.
 skip.
@@ -437,98 +429,96 @@ progress.
 qed.
 
 
-
-lemma opt_8 u_in : equiv[ OptExtGcd.main8 ~ OptExtGcd.main9
-    : ={arg} /\ u{1} = u_in /\ odd u_in /\ 2 < u_in ==> r * res{1}.`1 %% u_in =  res{2}.`1 %% u_in ].
+lemma opt_8 u_in r_in : equiv[ OptExtGcd.main8 ~ OptExtGcd.main9
+    : arg{1}.`1 = arg{2}.`1 /\ arg{1}.`2 = arg{2}.`2 /\  r_in = arg{2}.`3  /\ u{1} = u_in /\ odd u_in /\ odd r_in /\ 2 < u_in ==> r_in * res{1}.`1 %% u_in =  res{2}.`1 %% u_in ].
 proc. 
 seq 3 3 : (={u,v,u3,v3,t3} 
- /\ r * u2{1} %% u{1} = u2{2} %% u{2}
- /\ r * v2{1} %% u{1} = v2{2} %% u{2}
- /\ r * t2{1} %% u{1} = t2{2} %% u{2}  /\ u{1} = u_in /\ odd u_in /\ 2 < u_in).
-wp. skip. progress. clear H H0. smt (@Int @IntDiv).
-
+ /\ r{2} * u2{1} %% u{1} = u2{2} %% u{2}
+ /\ r{2} * v2{1} %% u{1} = v2{2} %% u{2}
+ /\ r{2} * t2{1} %% u{1} = t2{2} %% u{2}  /\ u{1} = u_in /\ odd u_in /\ 2 < u_in /\ r{2} = r_in /\ odd r_in).
+wp. skip. progress. clear H H0. smt.
 seq 1 1 : (={u,v,u3,v3,t3} 
- /\ r * u2{1} %% u{1} = u2{2} %% u{2}
- /\ r * v2{1} %% u{1} = v2{2} %% u{2}
- /\ r * t2{1} %% u{1} = t2{2} %% u{2}  /\ u{1} = u_in /\ odd u_in /\ 2 < u_in).
-call (opt_8_eq u_in). apply r_odd. skip. progress. 
+ /\ r{2} * u2{1} %% u{1} = u2{2} %% u{2}
+ /\ r{2} * v2{1} %% u{1} = v2{2} %% u{2}
+ /\ r{2} * t2{1} %% u{1} = t2{2} %% u{2}  /\ u{1} = u_in /\ odd u_in /\ 2 < u_in /\ r{2} = r_in /\ odd r_in).
+call (opt_8_eq u_in r_in).  skip. progress. 
 seq 2 2 : (={u,v,u3,v3,t3} 
- /\ r * u2{1} %% u{1} = u2{2} %% u{2}
- /\ r * v2{1} %% u{1} = v2{2} %% u{2}
- /\ r * t2{1} %% u{1} = t2{2} %% u{2}  /\ u{1} = u_in /\ odd u_in /\ 2 < u_in).
+ /\ r{2} * u2{1} %% u{1} = u2{2} %% u{2}
+ /\ r{2} * v2{1} %% u{1} = v2{2} %% u{2}
+ /\ r{2} * t2{1} %% u{1} = t2{2} %% u{2}  /\ u{1} = u_in /\ odd u_in /\ 2 < u_in /\ r{2} = r_in /\ odd r_in).
 wp. skip. progress.
-have ->: r * (u{2} - t2{1}) =
-    r * u{2} - r * t2{1}.     smt (@Int @IntDiv).
-have ->: (r * u{2} - r * t2{1}) %% u{2}
-  = (r * u{2} %% u{2} - (r * t2{1} %% u{2})) %% u{2}.
+have ->: r{2} * (u{2} - t2{1}) =
+    r{2} * u{2} - r{2} * t2{1}.     smt (@Int @IntDiv).
+have ->: (r{2} * u{2} - r{2} * t2{1}) %% u{2}
+  = (r{2} * u{2} %% u{2} - (r{2} * t2{1} %% u{2})) %% u{2}.
 smt (@Int @IntDiv).    
- have ->: r * u{2} %% u{2} = 0. smt (@Int @IntDiv). simplify.
+ have ->: r{2} * u{2} %% u{2} = 0. smt (@Int @IntDiv). simplify.
  rewrite H1.
 have ->: (u{2} - t2{2}) %% u{2} = (u{2} %% u{2} - t2{2} %% u{2}) %% u{2}.
 smt (@Int @IntDiv).
 smt (@Int @IntDiv).      
-have ->: r * (u{2} - t2{1}) =
-    r * u{2} - r * t2{1}.     smt (@Int @IntDiv).
-have ->: (r * u{2} - r * t2{1}) %% u{2}
-  = (r * u{2} %% u{2} - (r * t2{1} %% u{2})) %% u{2}.
+have ->: r{2} * (u{2} - t2{1}) =
+    r{2} * u{2} - r{2} * t2{1}.     smt (@Int @IntDiv).
+have ->: (r{2} * u{2} - r{2} * t2{1}) %% u{2}
+  = (r{2} * u{2} %% u{2} - (r{2} * t2{1} %% u{2})) %% u{2}.
 smt (@Int @IntDiv).    
- have ->: r * u{2} %% u{2} = 0. smt (@Int @IntDiv). simplify.
+ have ->: r{2} * u{2} %% u{2} = 0. smt (@Int @IntDiv). simplify.
  rewrite H1.
 have ->: (u{2} - t2{2}) %% u{2} = (u{2} %% u{2} - t2{2} %% u{2}) %% u{2}.
 smt (@Int @IntDiv).
 smt (@Int @IntDiv).      
 seq 1 1 : (={u,v,u3,v3,t3} 
- /\ r * u2{1} %% u{1} = u2{2} %% u{2}
- /\ r * v2{1} %% u{1} = v2{2} %% u{2}
- /\ r * t2{1} %% u{1} = t2{2} %% u{2}  /\ u{1} = u_in /\ odd u_in /\ 2 < u_in).
+ /\ r{2} * u2{1} %% u{1} = u2{2} %% u{2}
+ /\ r{2} * v2{1} %% u{1} = v2{2} %% u{2}
+ /\ r{2} * t2{1} %% u{1} = t2{2} %% u{2}  /\ u{1} = u_in /\ odd u_in /\ 2 < u_in /\ r{2} = r_in /\ odd r_in).
 wp. skip. progress.
 have ->: (u{2} - v2{2}) %% u{2}
    = (u{2} %% u{2} - v2{2} %% u{2}) %% u{2}.
 smt (@Int @IntDiv).
 rewrite - H0.
 have ->: u{2} %% u{2} = 0.  smt (@Int @IntDiv). simplify.
-have ->: r * (u{2} - v2{1}) =
-    r * u{2} - r * v2{1}.     smt (@Int @IntDiv).
-have ->: (r * u{2} - r * v2{1}) %% u{2}
-  = (r * u{2} %% u{2} - (r * v2{1} %% u{2})) %% u{2}.
+have ->: r{2} * (u{2} - v2{1}) =
+    r{2} * u{2} - r{2} * v2{1}.     smt (@Int @IntDiv).
+have ->: (r{2} * u{2} - r{2} * v2{1}) %% u{2}
+  = (r{2} * u{2} %% u{2} - (r{2} * v2{1} %% u{2})) %% u{2}.
 smt (@Int @IntDiv).    
- have ->: r * u{2} %% u{2} = 0. smt (@Int @IntDiv). simplify. auto.
+ have ->: r{2} * u{2} %% u{2} = 0. smt (@Int @IntDiv). simplify. auto.
 while  (={u,v,u3,v3,t3} 
- /\ r * u2{1} %% u{1} = u2{2} %% u{2}
- /\ r * v2{1} %% u{1} = v2{2} %% u{2}
- /\ r * t2{1} %% u{1} = t2{2} %% u{2}
- /\ u{1} = u_in /\ odd u_in /\ 2 < u_in).
+ /\ r{2} * u2{1} %% u{1} = u2{2} %% u{2}
+ /\ r{2} * v2{1} %% u{1} = v2{2} %% u{2}
+ /\ r{2} * t2{1} %% u{1} = t2{2} %% u{2}
+ /\ u{1} = u_in /\ odd u_in /\ 2 < u_in /\ r{2} = r_in /\ odd r_in).
 seq 1 1 : (={u,v,u3,v3,t3} 
- /\ r * u2{1} %% u{1} = u2{2} %% u{2}
- /\ r * v2{1} %% u{1} = v2{2} %% u{2}
- /\ r * t2{1} %% u{1} = t2{2} %% u{2}  /\ u{1} = u_in /\ odd u_in /\ 2 < u_in).
-call (opt_8_eq u_in). apply r_odd. skip. progress.
+ /\ r{2} * u2{1} %% u{1} = u2{2} %% u{2}
+ /\ r{2} * v2{1} %% u{1} = v2{2} %% u{2}
+ /\ r{2} * t2{1} %% u{1} = t2{2} %% u{2}  /\ u{1} = u_in /\ odd u_in /\ 2 < u_in /\ r{2} = r_in /\ odd r_in).
+call (opt_8_eq u_in r_in).  skip. progress.
 seq 1 1 : (={u,v,u3,v3,t3} 
- /\ r * u2{1} %% u{1} = u2{2} %% u{2}
- /\ r * v2{1} %% u{1} = v2{2} %% u{2}
- /\ r * t2{1} %% u{1} = t2{2} %% u{2}  /\ u{1} = u_in /\ odd u_in /\ 2 < u_in).
+ /\ r{2} * u2{1} %% u{1} = u2{2} %% u{2}
+ /\ r{2} * v2{1} %% u{1} = v2{2} %% u{2}
+ /\ r{2} * t2{1} %% u{1} = t2{2} %% u{2}  /\ u{1} = u_in /\ odd u_in /\ 2 < u_in /\ r{2} = r_in /\ odd r_in).
 wp. skip. progress.  
-have ->: r * (u{2} - t2{1}) =
-    r * u{2} - r * t2{1}.     smt (@Int @IntDiv).
-have ->: (r * u{2} - r * t2{1}) %% u{2}
-  = (r * u{2} %% u{2} - (r * t2{1} %% u{2})) %% u{2}.
+have ->: r{2} * (u{2} - t2{1}) =
+    r{2} * u{2} - r{2} * t2{1}.     smt (@Int @IntDiv).
+have ->: (r{2} * u{2} - r{2} * t2{1}) %% u{2}
+  = (r{2} * u{2} %% u{2} - (r{2} * t2{1} %% u{2})) %% u{2}.
 smt (@Int @IntDiv).    
- have ->: r * u{2} %% u{2} = 0. smt (@Int @IntDiv). simplify.
+ have ->: r{2} * u{2} %% u{2} = 0. smt (@Int @IntDiv). simplify.
  rewrite H1.
 have ->: (u{2} - t2{2}) %% u{2} = (u{2} %% u{2} - t2{2} %% u{2}) %% u{2}.
 smt (@Int @IntDiv).
 smt (@Int @IntDiv).      
 seq 1 1 : (={u,v,u3,v3,t3} 
- /\ r * u2{1} %% u{1} = u2{2} %% u{2}
- /\ r * v2{1} %% u{1} = v2{2} %% u{2}
- /\ r * t2{1} %% u{1} = t2{2} %% u{2}  /\ u{1} = u_in /\ odd u_in /\ 2 < u_in).
+ /\ r{2} * u2{1} %% u{1} = u2{2} %% u{2}
+ /\ r{2} * v2{1} %% u{1} = v2{2} %% u{2}
+ /\ r{2} * t2{1} %% u{1} = t2{2} %% u{2}  /\ u{1} = u_in /\ odd u_in /\ 2 < u_in /\ r{2} = r_in /\ odd r_in).
 wp. skip. progress.  
-have ->: r * (u{2} + (u2{1} - v2{1})) = (r * u{2} + r * (u2{1} - v2{1})).
+have ->: r{2} * (u{2} + (u2{1} - v2{1})) = (r{2} * u{2} + r{2} * (u2{1} - v2{1})).
 smt (@Int @IntDiv).
-have ->: (r * u{2} + r * (u2{1} - v2{1})) %% u{2}
-   = (r * u{2} %% u{2} + r * (u2{1} - v2{1}) %% u{2}) %% u{2}. 
+have ->: (r{2} * u{2} + r{2} * (u2{1} - v2{1})) %% u{2}
+   = (r{2} * u{2} %% u{2} + r{2} * (u2{1} - v2{1}) %% u{2}) %% u{2}. 
 smt (@Int @IntDiv).
-have ->: r * u{2} %% u{2} = 0. smt (@Int @IntDiv). simplify.
+have ->: r{2} * u{2} %% u{2} = 0. smt (@Int @IntDiv). simplify.
 have ->: (u{2} + (u2{2} - v2{2})) %% u{2} =
     (u{2} %% u{2} + (u2{2} - v2{2}) %% u{2}) %% u{2}.
 smt (@Int @IntDiv).
@@ -537,10 +527,10 @@ have ->: (u2{2} - v2{2}) %% u{2}
    = (u2{2} %% u{2} - v2{2} %% u{2}) %% u{2}.
 smt (@Int @IntDiv).
 rewrite - H0  - H.
-have ->: r * (u2{1} - v2{1}) =
-    r * u2{1} - r * v2{1}.     smt (@Int @IntDiv).
-have ->: (r * u2{1} - r * v2{1}) %% u{2}
-  = (r * u2{1} %% u{2} - r * v2{1} %% u{2}) %% u{2}.
+have ->: r{2} * (u2{1} - v2{1}) =
+    r{2} * u2{1} - r{2} * v2{1}.     smt (@Int @IntDiv).
+have ->: (r{2} * u2{1} - r{2} * v2{1}) %% u{2}
+  = (r{2} * u2{1} %% u{2} - r{2} * v2{1} %% u{2}) %% u{2}.
 smt (@Int @IntDiv).    
 auto.
 have ->: (u{2} + (u2{2} - v2{2})) %% u{2} =
@@ -551,49 +541,49 @@ have ->: (u2{2} - v2{2}) %% u{2}
    = (u2{2} %% u{2} - v2{2} %% u{2}) %% u{2}.
 smt (@Int @IntDiv).
 rewrite - H0  - H.
-have ->: r * (u2{1} - v2{1}) =
-    r * u2{1} - r * v2{1}.     smt (@Int @IntDiv).
-have ->: (r * u2{1} - r * v2{1}) %% u{2}
-  = (r * u2{1} %% u{2} - r * v2{1} %% u{2}) %% u{2}.
+have ->: r{2} * (u2{1} - v2{1}) =
+    r{2} * u2{1} - r{2} * v2{1}.     smt (@Int @IntDiv).
+have ->: (r{2} * u2{1} - r{2} * v2{1}) %% u{2}
+  = (r{2} * u2{1} %% u{2} - r{2} * v2{1} %% u{2}) %% u{2}.
 smt (@Int @IntDiv).    
 smt (@Int @IntDiv).    
-have ->: r * (u{2} + (u2{1} - v2{1})) = (r * u{2} + r * (u2{1} - v2{1})).
+have ->: r{2} * (u{2} + (u2{1} - v2{1})) = (r{2} * u{2} + r{2} * (u2{1} - v2{1})).
 smt (@Int @IntDiv).
-have ->: (r * u{2} + r * (u2{1} - v2{1})) %% u{2}
-   = (r * u{2} %% u{2} + r * (u2{1} - v2{1}) %% u{2}) %% u{2}. 
+have ->: (r{2} * u{2} + r{2} * (u2{1} - v2{1})) %% u{2}
+   = (r{2} * u{2} %% u{2} + r{2} * (u2{1} - v2{1}) %% u{2}) %% u{2}. 
 smt (@Int @IntDiv).
-have ->: r * u{2} %% u{2} = 0. smt (@Int @IntDiv). simplify.
+have ->: r{2} * u{2} %% u{2} = 0. smt (@Int @IntDiv). simplify.
 have ->: (u2{2} - v2{2}) %% u{2}
    = (u2{2} %% u{2} - v2{2} %% u{2}) %% u{2}.
 smt (@Int @IntDiv).
 rewrite - H0  - H.
-have ->: r * (u2{1} - v2{1}) =
-    r * u2{1} - r * v2{1}.     smt (@Int @IntDiv).
-have ->: (r * u2{1} - r * v2{1}) %% u{2}
-  = (r * u2{1} %% u{2} - r * v2{1} %% u{2}) %% u{2}.
+have ->: r{2} * (u2{1} - v2{1}) =
+    r{2} * u2{1} - r{2} * v2{1}.     smt (@Int @IntDiv).
+have ->: (r{2} * u2{1} - r{2} * v2{1}) %% u{2}
+  = (r{2} * u2{1} %% u{2} - r{2} * v2{1} %% u{2}) %% u{2}.
 smt (@Int @IntDiv).    
 smt (@Int @IntDiv).    
 have ->: (u2{2} - v2{2}) %% u{2}
    = (u2{2} %% u{2} - v2{2} %% u{2}) %% u{2}.
 smt (@Int @IntDiv).
 rewrite - H0  - H.
-have ->: r * (u2{1} - v2{1}) =
-    r * u2{1} - r * v2{1}.     smt (@Int @IntDiv).
-have ->: (r * u2{1} - r * v2{1}) %% u{2}
-  = (r * u2{1} %% u{2} - r * v2{1} %% u{2}) %% u{2}.
+have ->: r{2} * (u2{1} - v2{1}) =
+    r{2} * u2{1} - r{2} * v2{1}.     smt (@Int @IntDiv).
+have ->: (r{2} * u2{1} - r{2} * v2{1}) %% u{2}
+  = (r{2} * u2{1} %% u{2} - r{2} * v2{1} %% u{2}) %% u{2}.
 smt (@Int @IntDiv).    
 smt (@Int @IntDiv).    
 wp. skip. progress. 
 skip. progress. 
 have ->: (u{2} - u2_R) %% u{2}
-   = (u{2} %% u{2} - u2_R %% u{2}) %% u{2}.
+   = (u{2} %% u{2} - u2_R{2} %% u{2}) %% u{2}.
 smt (@Int @IntDiv).
-have ->: r * (u{2} - u2_L) =
-    r * u{2} - r * u2_L.     smt (@Int @IntDiv).
-have ->: (r * u{2} - r * u2_L) %% u{2}
-  = (r * u{2} %% u{2} - r * u2_L %% u{2}) %% u{2}.
+have ->: r{2} * (u{2} - u2_L) =
+    r{2} * u{2} - r{2} * u2_L.     smt (@Int @IntDiv).
+have ->: (r{2} * u{2} - r{2} * u2_L) %% u{2}
+  = (r{2} * u{2} %% u{2} - r{2} * u2_L %% u{2}) %% u{2}.
 smt (@Int @IntDiv).    
-have ->: r * u{2} %% u{2} = 0. smt (@Int @IntDiv).     simplify.
+have ->: r{2} * u{2} %% u{2} = 0. smt (@Int @IntDiv).     simplify.
 have ->: u{2} %% u{2} = 0. smt (@Int @IntDiv).     simplify.
 smt().
 qed.  
