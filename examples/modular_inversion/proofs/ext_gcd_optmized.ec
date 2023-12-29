@@ -921,8 +921,29 @@ qed.
 
   
   
-  
-  
+lemma opt_main9_full_correctness &m u v r:
+    1%r <= Pr[ OptExtGcd.main9(u,v,r) @&m : v *  (res.`1) %% u =  r * (gcd u v) %% u ].
+rewrite - (main2_full_correctness &m u v).
+byequiv.
+symmetry.    
 
-  
-  
+conseq (correctness_transfer u r).  progress. admit. admit. 
+
+progress.
+   
+have ->: v * result_L.`1 %% u = (v %% u) * (result_L.`1 %% u) %% u.
+smt(@Int @IntDiv).    
+rewrite H.
+
+have ->: v %% u * (r * result_R.`2 %% u) %% u = v * (r * result_R.`2) %% u.
+smt(@Int @IntDiv).
+have ->: v * (r * result_R.`2) %% u = r * v * result_R.`2 %% u. smt(@Int @IntDiv).
+have ->: r * v * result_R.`2 %% u = (r %% u) * (v * result_R.`2 %% u) %% u. smt(@Int @IntDiv).
+rewrite H1.
+have ->: r %% u * (result_R.`3 %% u) %% u = r * result_R.`3 %% u.
+smt(@Int @IntDiv).
+ rewrite H2. auto.
+auto.
+auto.
+qed.    
+    

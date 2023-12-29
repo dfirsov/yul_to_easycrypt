@@ -246,7 +246,10 @@ smt.
 wp. skip. progress. 
 skip. progress.
 qed.
-  
+
+lemma main2_full_correctness &m u v :
+    Pr[ ExtGCD.main2(u,v) @&m : v * res.`2 %% u = res.`3 %% u /\ res.`3 = (gcd u v) ] = 1%r.
+admitted.    
 
 
 lemma ext_gcd_bezout u_in v_in :
