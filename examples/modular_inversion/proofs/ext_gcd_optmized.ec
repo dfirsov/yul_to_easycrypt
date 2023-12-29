@@ -430,7 +430,7 @@ qed.
 
 
 lemma opt_8 u_in r_in : equiv[ OptExtGcd.main8 ~ OptExtGcd.main9
-    : arg{1}.`1 = arg{2}.`1 /\ arg{1}.`2 = arg{2}.`2 /\  r_in = arg{2}.`3  /\ u{1} = u_in /\ odd u_in /\ odd r_in /\ 2 < u_in ==> r_in * res{1}.`1 %% u_in =  res{2}.`1 %% u_in ].
+    : arg{1}.`1 = arg{2}.`1 /\ arg{1}.`2 = arg{2}.`2 /\  r_in = arg{2}.`3  /\ u{1} = u_in /\ odd u_in /\ odd r_in /\ 2 < u_in ==> (r_in * res{1}.`1 %% u_in =  res{2}.`1 %% u_in) /\ res{1}.`2 = res{2}.`2 ].
 proc. 
 seq 3 3 : (={u,v,u3,v3,t3} 
  /\ r{2} * u2{1} %% u{1} = u2{2} %% u{2}
@@ -838,3 +838,91 @@ wp. inline*. sp. wp.
 while (={t20,t30,u0,v0}).
 wp. skip. progress. skip. progress.
 qed.
+
+
+lemma correctness_transfer u_in r_in : equiv[ OptExtGcd.main9 ~ ExtGCD.main2
+     : ={u,v}
+    /\ u{1} = u_in
+    /\ r{1} = r_in
+    /\ 0 < u{1}
+    /\ 0 < v{1}
+    ==> res{1}.`1 %% u_in = r_in * res{2}.`2  %% u_in /\ res{1}.`2 = res{2}.`3 ].
+symmetry.
+
+transitivity OptExtGcd.main1
+  (={arg} /\ u{1} = u_in /\ 0 < u{1} /\ 0 < v{1} ==> ={res})
+  (={u,v} /\ u{1} = u_in /\ 0 < u{1} /\ 0 < v{1} ==> r_in * res{1}.`2 %% u_in = res{2}.`1  %% u_in /\ res{2}.`2 = res{1}.`3 ).
+progress. smt().
+progress. smt().
+conseq opt_0. smt().
+
+  
+transitivity OptExtGcd.main2
+  (={arg} /\ u{1} = u_in /\ 0 < u{1} /\ 0 < v{1} ==> ={res})
+  (={u,v} /\ u{1} = u_in /\ 0 < u{1} /\ 0 < v{1} ==> r_in * res{1}.`2 %% u_in = res{2}.`1  %% u_in /\ res{2}.`2 = res{1}.`3 ).
+progress. smt().
+progress. 
+conseq opt_1. smt().
+
+transitivity OptExtGcd.main3
+  (={arg} /\ u{1} = u_in /\ 0 < u{1} /\ 0 < v{1} ==> ={res})
+  (={u,v} /\ u{1} = u_in /\ 0 < u{1} /\ 0 < v{1} ==> r_in * res{1}.`2 %% u_in = res{2}.`1  %% u_in /\ res{2}.`2 = res{1}.`3 ).
+progress. smt().
+progress. 
+conseq opt_2. smt().
+
+
+transitivity OptExtGcd.main4
+  (={arg} /\ u{1} = u_in /\ 0 < u{1} /\ 0 < v{1} ==> res{1}.`2 = res{2}.`1 /\ res{1}.`3 = res{2}.`2)
+  (={u,v} /\ u{1} = u_in /\ 0 < u{1} /\ 0 < v{1} ==> r_in * res{1}.`1 %% u_in = res{2}.`1  %% u_in /\ res{2}.`2 = res{1}.`2 ).
+progress. smt().
+progress.  smt(). smt().
+conseq opt_3. smt().
+
+  
+transitivity OptExtGcd.main5
+  (={arg} /\ u{1} = u_in /\ 0 < u{1} /\ 0 < v{1} ==> ={res})
+  (={u,v} /\ u{1} = u_in /\ 0 < u{1} /\ 0 < v{1} ==> r_in * res{1}.`1 %% u_in = res{2}.`1  %% u_in /\ res{2}.`2 = res{1}.`2 ).
+progress. smt().
+progress.  
+conseq opt_4. smt().
+
+transitivity OptExtGcd.main6
+  (={arg} /\ u{1} = u_in /\ 0 < u{1} /\ 0 < v{1} ==> ={res})
+  (={u,v} /\ u{1} = u_in /\ 0 < u{1} /\ 0 < v{1} ==> r_in * res{1}.`1 %% u_in = res{2}.`1  %% u_in /\ res{2}.`2 = res{1}.`2 ).
+progress. smt().
+progress.  
+conseq opt_5. progress. admit.
+smt().
+
+
+transitivity OptExtGcd.main7
+  (={arg} /\ u{1} = u_in /\ 0 < u{1} /\ 0 < v{1} ==> res{1}.`1 %% u_in = res{2}.`1 %% u_in /\ res{1}.`2 = res{2}.`2)
+  (={u,v} /\ u{1} = u_in /\ 0 < u{1} /\ 0 < v{1} ==> r_in * res{1}.`1 %% u_in = res{2}.`1  %% u_in /\ res{2}.`2 = res{1}.`2 ).
+progress. smt().
+progress.    rewrite - H1. smt(@Int @IntDiv). smt().  
+conseq (opt_6 u_in). progress. admit. admit.
+
+
+transitivity OptExtGcd.main8
+  (={arg} /\ u{1} = u_in /\ 0 < u{1} /\ 0 < v{1} ==> ={res})
+  (={u,v} /\ u{1} = u_in /\ 0 < u{1} /\ 0 < v{1} /\ r{2} = r_in ==> r_in * res{1}.`1 %% u_in = res{2}.`1  %% u_in /\ res{2}.`2 = res{1}.`2 ).
+progress. admit.
+progress.    
+conseq (opt_7). progress.
+
+conseq (opt_8 u_in r_in). progress.  
+admit. admit. admit.
+
+progress. smt().
+qed.  
+  
+
+
+  
+  
+  
+  
+
+  
+  
