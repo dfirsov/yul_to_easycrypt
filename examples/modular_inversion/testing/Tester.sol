@@ -17,7 +17,7 @@ contract Tester {
                 ret := 21888242871839275222246405745257275088696311157297823662689037894645226208583
             }
 
-function main61(u, v) -> inv {
+function binaryExtendedEuclideanAlgorithm_version2(u, v) -> inv {
     let u2 := 0
     let u3 := u
     let t2 := 1
@@ -80,7 +80,7 @@ function main61(u, v) -> inv {
 }
     
 
-let x := main61(P(),1234)
+let x := binaryExtendedEuclideanAlgorithm_version2(P(),1234)
 mstore(0,x)
 return(0,32)
         

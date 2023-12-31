@@ -7,6 +7,7 @@ import re
 def P() :
     return 21888242871839275222246405745257275088696311157297823662689037894645226208583
 
+
 def binaryExtendedEuclideanAlgorithm(modulus,base):
     u = base
     v = modulus
@@ -44,21 +45,8 @@ def binaryExtendedEuclideanAlgorithm(modulus,base):
         return c
     
                 
-        
 
-
-def simplify_ts(t2,t3,u,v):
-    while t3 % 2 == 0:
-        if t2 % 2 == 0:
-            (t2,t3) = (t2 // 2, t3 // 2)
-        else:
-            (t2,t3) = ((t2-u)//2, t3 // 2)
-    return (t2,t3)
-
-
-    
-
-def main61(u, v):
+def binaryExtendedEuclideanAlgorithm_version2(u, v):
     (u2,u3) = (0, u)
     (t2,t3) = (1, v)    
 
@@ -83,7 +71,7 @@ def main61(u, v):
             (v2, v3) = (t2, t3)
             
         t2 = u2+v2
-        if t2 >= u:
+        if u <= t2:
             t2 = t2 - u
 
         if u3 > v3:
@@ -92,38 +80,12 @@ def main61(u, v):
             t3 = v3 - u3            
 
     return (u - u2)
-
-def main6(u, v):
-    (u2,u3) = (0, u)
-    (t2,t3) = (-1, v)    
-
-    while t3 % 2 == 0:
-        if t2 % 2 == 0:
-            (t2,t3) = (t2 // 2, t3 // 2)
-        else:
-            (t2,t3) = ((t2-u)//2, t3 // 2)    
-    (v2, v3) = (-t2, t3)
-    (t2, t3) = (u2-v2, abs(u3-v3)) 
-
-    while (t3 != 0):
-
-
-        while t3 % 2 == 0:
-            if t2 % 2 == 0:
-                (t2,t3) = (t2 // 2, t3 // 2)
-            else:
-                (t2,t3) = ((t2-u)//2, t3 // 2)
-        if v3 < u3:
-            (u2,u3) = (t2,t3)
-            (t2, t3) = (u2-v2, abs(u3 - v3))
-        else:
-            (v2, v3) = (-t2, t3)
-            (t2, t3) = (u2-v2, abs(u3 - v3))
-    return u2
     
 
+
+
 def run1(x):
-  inv = main61(P(),x)
+  inv = binaryExtendedEuclideanAlgorithm_version2(P(),x)
   return (x * inv) % P()
 
 def run2(x):
@@ -145,33 +107,8 @@ def test2():
         c = c + 1
 
 def main():
-    test2()
+    test1()
   
 if __name__ == '__main__':
     main()
 
-
-  #   proc main6(u : int, v : int) = {
-  #     var u2,u3,v2,v3,t2,t3;
-  #     (u2,u3,v3,v2,t2,t3) <- (0,0,0,0,0,0);
-  #     (v2,v3) <- ((1-u), v);
-  #     (u2,u3) <- (0, u);
-  #     (t2,t3) <- (-1, v);
-
-  #     (t2,t3) <@ simplify_ts(t2, t3, u, v);
-  #     (v2, v3) <- (-u-t2, t3);
-
-  #     (t2, t3) <- (u2-v2, `|u3-v3|);
-
-  #     while (t3 <> 0){
-  #       (t2,t3) <@ simplify_ts(t2, t3, u, v);
-  #       if (v3 < u3){
-  #         (u2, u3) <- (t2, t3);
-  #         (t2, t3) <- (u2-v2, `|u3 - v3|);          
-  #       }else{
-  #         (v2, v3) <- (-u-t2, t3);
-  #         (t2, t3) <- (u2-v2, `|u3 - v3|);          
-  #       }
-  #      }
-  #     return (u2, u3);
-  # }

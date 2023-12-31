@@ -319,11 +319,75 @@ module OptExtGcd = {
 
        }
       return (u-u2, u3);
-  }  
+  }
+
+    proc main10(u : int, v : int, r : int) = {
+      var u2,u3,v2,v3,t2,t3;
+
+      (u2,u3) <- (0, u);
+      (v2,v3) <- (r, v);
+      (t2,t3) <- (r, v);
+
+      (t2,t3) <@ simplify_ts_pos(t2, v, u, v);
+      (v2, v3) <- (t2, t3);
+
+      if (v3 < u3){
+        t3 <- u3 - v3;
+      }else{
+        t3 <- v3 - u3;
+      }
+      t2 <- v2;
+
+      while (t3 <> 0){
+        (t2,t3) <@ simplify_ts_pos(t2, t3, u, v);
+
+        if (v3 < u3){
+          (u2, u3) <- (t2, t3);
+        }else{
+          (v2, v3) <- (t2, t3);
+        }
+
+        t2 <- u2 + v2;
+        if (u <= t2){
+            t2 <- t2 - u;
+        }else{
+            t2 <- u2 + v2;          
+        }
+
+        if (v3 < u3){
+          t3 <- u3 - v3;
+        }else{
+          t3 <- v3 - u3;
+        }
+
+       }
+      return (u-u2, u3);
+  }    
 
 }.
 
 
+lemma opt_9 u_in r_in : equiv[ OptExtGcd.main9 ~ OptExtGcd.main10
+    : ={arg} /\  r_in = arg{2}.`3  /\ u{1} = u_in /\ odd u_in /\ odd r_in /\ 2 < u_in ==> ={res} ].
+proc.
+seq 3 3 : (={u,v,r,u2,u3,v3,t2,t3} /\ r_in = r{1} /\ v2{1}  = (u{2} -v2{2})).
+wp. skip. progress.
+seq 1 1 : (={u,v,r,u2,u3,v3,t2,t3} /\ r_in = r{1} /\ v2{1}  = (u{2} -v2{2})).
+call (_:true). sim. skip. auto.
+seq 3 3 : (={u,v,r,u2,u3,v3,t2,t3} /\ r_in = r{1} /\ v2{1}  = (u{2} -v2{2})).    
+wp. skip. smt(@Int @IntDiv).
+while (={u,v,r,u2,u3,v3,t2,t3} /\ r_in = r{1} /\ v2{1}  = (u{2} -v2{2})).
+seq 1 1 : (={u,v,r,u2,u3,v3,t2,t3} /\ r_in = r{1} /\ v2{1}  = (u{2} -v2{2})).
+call (_:true). sim. skip. auto.
+seq 1 1 : (={u,v,r,u2,u3,v3,t2,t3} /\ r_in = r{1} /\ v2{1}  = (u{2} -v2{2})).
+wp. skip. progress. 
+wp. skip. progress.    
+smt(@Int @IntDiv). smt(@Int @IntDiv). smt(@Int @IntDiv).
+    smt(@Int @IntDiv). smt(@Int @IntDiv). smt(@Int @IntDiv).
+    smt(@Int @IntDiv). smt(@Int @IntDiv).
+skip. smt(@Int @IntDiv).
+qed.    
+    
 lemma nosmt opt_6_eq_aux m x' y' :  odd m =>
     2 < m
  =>  (2 * x') %% m = (2 * y') %% m
@@ -974,4 +1038,15 @@ have ->: inv u v * (v %% u) %% u = inv u v * v %% u.
     smt (@Int @IntDiv).
     rewrite inv_ax. smt(). auto.
 smt(@Distr).
+qed.    
+
+
+lemma opt_main10_full_correctness2 &m u v r: 2 < u => 0 < v => odd u => odd r =>
+    gcd u v = 1 =>
+    1%r = Pr[ OptExtGcd.main10(u,v,r) @&m :  (res.`1) %% u =  (inv u v) * r %% u ].
+progress.    
+rewrite (opt_main9_full_correctness2 &m u v r);auto.
+byequiv.
+conseq (opt_9 u r).
+auto. auto. auto. auto.
 qed.    
