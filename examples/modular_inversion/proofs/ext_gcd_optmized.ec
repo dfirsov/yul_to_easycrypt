@@ -928,7 +928,7 @@ lemma opt_main9_full_correctness &m u v r: 2 < u => 0 < v => odd u => odd r =>
 progress.
 have f : 1%r <= Pr[ OptExtGcd.main9(u,v,r) @&m : v *  (res.`1) %% u =  r * (gcd u v) %% u ].
     
-rewrite - (main2_full_correctness &m u v).
+rewrite - (main2_full_correctness &m u v);auto. smt().
 byequiv.
 symmetry.    
 conseq (correctness_transfer u r _ _ _).  progress.  smt().

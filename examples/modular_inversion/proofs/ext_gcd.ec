@@ -259,55 +259,60 @@ wp. skip. progress.
 skip. progress.
 qed.
 
-require import Gcd_nofuss2.
+require import Gcd.
 
-lemma simeq : equiv [GCDAlgs.simplify_t ~ ExtGCD.opt_simplify_ts : t3{2} = t{1} ==> res{1} = res{2}.`3  ]. admitted.
+lemma simeq : equiv [GCDAlgs.simplify_t ~ ExtGCD.opt_simplify_ts : t3{2} = t{1} ==> res{1} = res{2}.`3  ].
+proc.
+while (t{1} = t3{2}). wp. skip.
+progress. skip. progress.
+qed.    
 
-lemma main2_gcd u_in v_in :
+lemma main2_gcd u_in v_in : 0 < u_in => 0 < v_in => odd u_in =>
  phoare [ ExtGCD.main2 : arg = (u_in,v_in) ==> res.`3 = (gcd u_in v_in) ] = 1%r.
-
+progress.    
  have f : forall &m a, Pr[ GCDAlgs.main4(u_in, v_in) @ &m : res = a]
      = Pr[ ExtGCD.main2(u_in, v_in) @ &m : res.`3 = a].
  progress.
- byequiv. proc.
- 
+ byequiv. proc. 
 wp. while (u{1} = u3{2} /\ v{1} = v3{2} /\ t{1} = t3{2}).
 wp. call (simeq). skip. progress.
-wp.  skip. progress. auto. auto.
-     
-     
-    
+wp.  skip. progress. auto. auto.    
 bypr. progress.
- have ->: 1%r = Pr[ GCDAlgs.main4(u{m}, v{m}) @ &m : res = gcd u_in v_in]. admit.
+ have ->: 1%r = Pr[ GCDAlgs.main4(u{m}, v{m}) @ &m : res = gcd u_in v_in].
+     byphoare (_: arg = (u_in, v_in) ==> _).
+     conseq (main4_correct_and_terminating u_in v_in).
+     progress. smt(). auto.   
  have ->: u{m} = u_in. smt().
  have ->: v{m} = v_in. smt().
  rewrite f. smt().
 qed.
 
 
-lemma main2_bezout2 u_in v_in :
+lemma main2_bezout2 u_in v_in : 0 < u_in => 0 < v_in => odd u_in =>
  phoare [ ExtGCD.main2 : arg = (u_in,v_in) ==> v_in * res.`2 %% u_in = res.`3 %% u_in ] = 1%r.
+progress.    
 phoare split ! 1%r 0%r.    smt().
 proc*.    
 call (main2_gcd u_in v_in).  auto.    
 hoare. simplify.    
 conseq (main2_bezout u_in v_in).
-progress. admit. admit. admit.
+progress.
 progress.
 smt(@Int @IntDiv).
 qed.    
  
 
 
-lemma main2_full_correctness &m u v :
+lemma main2_full_correctness &m u v : 0 < u => 0 < v => odd u =>
     Pr[ ExtGCD.main2(u,v) @&m : (v * res.`2 %% u = res.`3 %% u) /\ (res.`3 = (gcd u v)) ] = 1%r.
+progress.    
 byphoare (_: arg = (u,v) ==> _).
 phoare split 1%r 1%r 1%r.     smt().
-apply main2_bezout2.
-apply main2_gcd.
+apply main2_bezout2;auto.
+apply (main2_gcd u v _ _ _);auto.
 proc*.    
-call (main2_bezout2 u v).
-    skip. progress. smt(). auto.  auto.
+call (main2_bezout2 u v);auto. progress.
+    progress. smt(). auto.  auto.
 qed.
 
 
