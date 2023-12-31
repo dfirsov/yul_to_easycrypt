@@ -89,9 +89,11 @@ module GCDAlgs = {
     }
     return u;
   }
+
+
   
 }.
-
+    
 
 lemma simplify_divby2s t_in :
    phoare [ GCDAlgs.simplify_t : t = t_in /\ t <> 0 ==> res = div_by2s t_in ] = 1%r.

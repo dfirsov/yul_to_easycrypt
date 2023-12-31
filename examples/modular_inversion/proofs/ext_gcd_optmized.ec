@@ -949,9 +949,6 @@ auto. smt(). auto. auto.
 smt(@Distr).
 qed.    
 
-op inv : int -> int -> int.
-axiom inv_ax u v : (inv u v) * v %% u = 1. 
-
 lemma opt_main9_full_correctness2 &m u v r: 2 < u => 0 < v => odd u => odd r =>
     gcd u v = 1 =>
     1%r = Pr[ OptExtGcd.main9(u,v,r) @&m :  (res.`1) %% u =  (inv u v) * r %% u ].

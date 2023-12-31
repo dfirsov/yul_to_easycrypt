@@ -200,12 +200,24 @@ qed.
 
 lemma gcd_t_simp_eq2 t3_in  : 
   equiv [ ExtGCD.opt_simplify_ts ~ ExtGCD.opt_simplify_ts : t3_in = t3{1} /\ ={t1,t2,u,v} /\ `|t3{1}| = t3{2}
-  ==> `|res{1}.`3| = res{2}.`3 /\ res{1}.`1 = res{2}.`1 /\ res{1}.`2 = res{2}.`2 /\ 0 < t3_in = 0 < res{1}.`3 /\ (t3_in <> 0) = (res{1}.`3 <> 0)  ].  admitted.
+  ==> `|res{1}.`3| = res{2}.`3 /\ res{1}.`1 = res{2}.`1 /\ res{1}.`2 = res{2}.`2 /\ 0 < t3_in = 0 < res{1}.`3 /\ (t3_in <> 0) = (res{1}.`3 <> 0)  ].
+proc. simplify.
+while (={t1,t2,u,v} /\ `|t3{1}| = t3{2} /\  (t3_in <> 0) = (t3{1} <> 0) /\ 0 < t3_in = 0 < t3{1}).
+wp. skip. progress;smt(@Int @IntDiv). 
+skip. progress;smt(@Int @IntDiv).
+qed.
+
 
 
 lemma gcd_t_simp_eq3 t3_in  : 
   equiv [ ExtGCD.opt_simplify_ts ~ ExtGCD.opt_simplify_ts : t3_in = t3{1} /\ ={arg} 
-  ==>  0 < t3_in = 0 < res{1}.`3 /\ ={res}  ].  admitted.
+  ==>  0 < t3_in = 0 < res{1}.`3 /\ ={res}  ].
+proc. simplify.
+while (={t1,t2,t3,u,v} /\ 0 < t3_in = 0 < t3{1}).
+wp. skip. progress;smt(@Int @IntDiv). 
+skip. progress;smt(@Int @IntDiv).
+qed.
+
 
 
 
@@ -247,47 +259,55 @@ wp. skip. progress.
 skip. progress.
 qed.
 
-lemma main2_full_correctness &m u v :
-    Pr[ ExtGCD.main2(u,v) @&m : v * res.`2 %% u = res.`3 %% u /\ res.`3 = (gcd u v) ] = 1%r.
-admitted.    
+require import Gcd_nofuss2.
 
+lemma simeq : equiv [GCDAlgs.simplify_t ~ ExtGCD.opt_simplify_ts : t3{2} = t{1} ==> res{1} = res{2}.`3  ]. admitted.
 
-lemma ext_gcd_bezout u_in v_in :
-  hoare [ ExtGCD.main : arg = (u_in, v_in) /\ 0 < u_in /\ 0 < v_in /\
-     (odd u_in \/ odd v_in)  ==> u_in * res.`1 + v_in * res.`2 = res.`3 ].
-proof.
-proc.
-seq 5 : ((u_in * t1 + v_in * t2 = t3)
- /\ u_in * u1 + v_in * u2 = u3
- /\ u_in * v1 + v_in * v2 = v3
- /\ u = u_in /\ v = v_in
- /\ (odd u_in \/ odd v_in)).
-wp. skip.  progress.
-smt. smt.
-while (((u_in * t1 + v_in * t2 = t3)
- /\ u_in * u1 + v_in * u2 = u3
- /\ u_in * v1 + v_in * v2 = v3) /\ u = u_in /\ v = v_in /\ (odd u_in \/ odd v_in)).
-seq 1 : (#pre).
-exists* (t1, t2, t3,  u1, u2, u3, v1, v2, v3).
-elim*. progress.
-call (gcd_t_simp f.`1 f.`2 f.`3 f.`4 f.`5 f.`6 f.`7 f.`8 f.`9 u_in v_in).
-skip. progress. 
-seq 2 : (((u_in * t1 + v_in * t2 = t3)
- /\ u_in * u1 + v_in * u2 = u3
- /\ u_in * v1 + v_in * v2 = v3) /\ u = u_in /\ v = v_in /\ (odd u_in \/ odd v_in)).
-wp. skip. simplify.
-move => &hr.
-move => q.
-case (0 < t3{hr}).
-progress.
-smt.
-smt.
-smt.
-smt.
-smt.
-smt.
-smt.
-wp. skip. progress. smt. 
-skip. progress.
+lemma main2_gcd u_in v_in :
+ phoare [ ExtGCD.main2 : arg = (u_in,v_in) ==> res.`3 = (gcd u_in v_in) ] = 1%r.
+
+ have f : forall &m a, Pr[ GCDAlgs.main4(u_in, v_in) @ &m : res = a]
+     = Pr[ ExtGCD.main2(u_in, v_in) @ &m : res.`3 = a].
+ progress.
+ byequiv. proc.
+ 
+wp. while (u{1} = u3{2} /\ v{1} = v3{2} /\ t{1} = t3{2}).
+wp. call (simeq). skip. progress.
+wp.  skip. progress. auto. auto.
+     
+     
+    
+bypr. progress.
+ have ->: 1%r = Pr[ GCDAlgs.main4(u{m}, v{m}) @ &m : res = gcd u_in v_in]. admit.
+ have ->: u{m} = u_in. smt().
+ have ->: v{m} = v_in. smt().
+ rewrite f. smt().
 qed.
+
+
+lemma main2_bezout2 u_in v_in :
+ phoare [ ExtGCD.main2 : arg = (u_in,v_in) ==> v_in * res.`2 %% u_in = res.`3 %% u_in ] = 1%r.
+phoare split ! 1%r 0%r.    smt().
+proc*.    
+call (main2_gcd u_in v_in).  auto.    
+hoare. simplify.    
+conseq (main2_bezout u_in v_in).
+progress. admit. admit. admit.
+progress.
+smt(@Int @IntDiv).
+qed.    
+ 
+
+
+lemma main2_full_correctness &m u v :
+    Pr[ ExtGCD.main2(u,v) @&m : (v * res.`2 %% u = res.`3 %% u) /\ (res.`3 = (gcd u v)) ] = 1%r.
+byphoare (_: arg = (u,v) ==> _).
+phoare split 1%r 1%r 1%r.     smt().
+apply main2_bezout2.
+apply main2_gcd.
+proc*.    
+call (main2_bezout2 u v).
+    skip. progress. smt(). auto.  auto.
+qed.
+
 
