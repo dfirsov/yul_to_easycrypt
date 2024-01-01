@@ -15,7 +15,15 @@ pip3 install bigtree
 
 `python3 yul2ec.py source.yul target.ec`
 
-# Example
+
+# Example: Modular inversion `examples/modular_inversion` 
+
+* `proofs/gcd.ec` EasyCrypt implementation and proofs of correctness for binary Euclidean algorithm.
+* `proofs/ext_gcd.ec` modular inversion by extended binary Euclidean algorithm (Bézout's identity and GCD) in EasyCrypt.
+* `proofs/ext_gcd_optmized.ec` gradual optimizations of extended binary Euclidean algorithm.
+* `sources/` YUL and Python implementation of modular inversion.
+
+# Example: Montgomery addition
 
 
 ```

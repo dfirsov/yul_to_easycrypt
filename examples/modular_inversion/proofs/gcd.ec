@@ -6,7 +6,6 @@ require import Gcd_props.
 
 
 module GCDAlgs = {
-
   proc simplify_t(t:int) = {
       while (even t){
         t <- t %/ 2;
@@ -25,7 +24,6 @@ module GCDAlgs = {
     return u;
   }
 
-
   proc main4(u : int, v : int) = {
     var t <- 0;
     t <- -v;
@@ -35,9 +33,7 @@ module GCDAlgs = {
       t <- u - v;
     }
     return u;
-  }
-  
-  
+  }  
 }.
     
 
@@ -98,7 +94,6 @@ lemma gcd_odd_alg u_in v_in : hoare [ GCDAlgs.main3 : arg = (u_in, v_in) /\ 0 < 
 proof.
 proc.
 unroll 3. rcondt 3. wp. skip. smt.
-
 seq 4 : (gcd u_in v_in = gcd u v /\ odd u /\ odd v
   /\ 0 < u /\ 0 < v ).
 wp. skip. progress.
@@ -117,7 +112,8 @@ wp. skip. progress. rewrite H.
 smt.
 smt.
 smt.
-seq 1 : (gcd u_in v_in = gcd t (if 0 < t then v else u) /\ odd t /\ odd u /\ odd v /\ t <> 0 /\ (u = if 0 < t then t else u) /\ (v = if 0 < t then v else -t) /\ 0 <= u /\ 0 <= v ) .
+seq 1 : (gcd u_in v_in = gcd t (if 0 < t then v else u) /\ odd t /\ odd u /\ odd v /\ t <> 0
+   /\ (u = if 0 < t then t else u) /\ (v = if 0 < t then v else -t) /\ 0 <= u /\ 0 <= v).
 wp. skip. progress.
 rewrite H. 
 case (0 < t{hr}). auto.
@@ -129,12 +125,8 @@ rewrite H4.
 progress. rewrite H8. simplify.
 rewrite gcd6. smt.
 rewrite H5.
-progress. rewrite H8. simplify. smt.
-smt.
-skip. progress.
-smt.
-smt.
-smt.
+progress. rewrite H8. simplify. smt. smt.
+skip. progress. smt. smt. smt.
 qed.
 
 

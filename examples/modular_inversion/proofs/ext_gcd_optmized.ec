@@ -387,6 +387,7 @@ smt(@Int @IntDiv). smt(@Int @IntDiv). smt(@Int @IntDiv).
     smt(@Int @IntDiv). smt(@Int @IntDiv).
 skip. smt(@Int @IntDiv).
 qed.    
+
     
 lemma nosmt opt_6_eq_aux m x' y' :  odd m =>
     2 < m
@@ -443,6 +444,7 @@ have ->: a * ((2 * (b %/ 2)) %/ 2) = 2 * a * ( (b %/ 2)) %/ 2.
 smt (@Int @IntDiv).    auto.
 qed.    
 
+
 lemma opt_8_eq u_in r  : 
      equiv [ OptExtGcd.simplify_ts_pos ~ OptExtGcd.simplify_ts_pos :  odd u{1} /\ 2 < u{1} /\
       r * t2{1} %% u{1} = t2{2} %% u{1} /\ ={t3,u,v} /\ u{1} = u_in /\ odd r ==> r * res{1}.`1 %% u_in = res{2}.`1 %% u_in /\ res{1}.`2 = res{2}.`2 ].
@@ -453,8 +455,7 @@ apply opt_6_eq_aux. auto.  auto.
     have ->: 2 * (r * (t2{1} %/ 2)) = r * t2{1}.
        have q : even (r * t2{1} ). smt.
       have -> : (r * (t2{1} %/ 2))  = (r * t2{1}) %/ 2. smt (opt_8_aux).
-    smt (opt_8_aux).
-   
+    smt (opt_8_aux).   
     have ->: 2 * (t2{2} %/ 2) = t2{2}. smt (opt_8_aux). rewrite - H. auto.
 apply opt_6_eq_aux. auto. auto.
 have ->: 2 * (r * ((t2{1} + u{2}) %/ 2)) = (r * (t2{1} + u{2}) ).
@@ -662,8 +663,6 @@ while (={u,v,t2,v2,u2,u3,v3,t3}).
 wp. simplify. call (_:true). sim. skip. progress.
 wp. call (_:true). sim. skip. progress;smt.
 qed.    
-
-
 
 
 
@@ -907,7 +906,6 @@ qed.
 
 
 lemma correctness_transfer u_in r_in : odd u_in => odd r_in => 2 < u_in =>
-
  equiv[ OptExtGcd.main9 ~ ExtGCD.main2
      : ={u,v}
     /\ u{1} = u_in
@@ -916,82 +914,66 @@ lemma correctness_transfer u_in r_in : odd u_in => odd r_in => 2 < u_in =>
     /\ 0 < v{1}
     ==> res{1}.`1 %% u_in = r_in * res{2}.`2  %% u_in /\ res{1}.`2 = res{2}.`3 ].
 move => oddu oddr uin2. symmetry.
-
 transitivity OptExtGcd.main1
   (={arg} /\ u{1} = u_in  /\ 0 < u{1} /\ 0 < v{1} ==> ={res})
   (={u,v} /\ u{1} = u_in /\ r{2} = r_in  /\ 0 < u{1} /\ 0 < v{1} ==> r_in * res{1}.`2 %% u_in = res{2}.`1  %% u_in /\ res{2}.`2 = res{1}.`3 ).
 progress. smt().
 progress. smt().
-conseq opt_0. smt().
-
-  
+conseq opt_0. smt().  
 transitivity OptExtGcd.main2
   (={arg} /\ u{1} = u_in /\ 0 < u{1} /\ 0 < v{1} ==> ={res})
   (={u,v} /\ u{1} = u_in /\ r{2} = r_in /\ 0 < u{1} /\ 0 < v{1} ==> r_in * res{1}.`2 %% u_in = res{2}.`1  %% u_in /\ res{2}.`2 = res{1}.`3 ).
 progress. smt().
 progress. 
 conseq opt_1. smt().
-
 transitivity OptExtGcd.main3
   (={arg} /\ u{1} = u_in /\ 0 < u{1} /\ 0 < v{1} ==> ={res})
   (={u,v} /\ u{1} = u_in /\ r{2} = r_in /\ 0 < u{1} /\ 0 < v{1} ==> r_in * res{1}.`2 %% u_in = res{2}.`1  %% u_in /\ res{2}.`2 = res{1}.`3 ).
 progress. smt().
 progress. 
 conseq opt_2. smt().
-
-
 transitivity OptExtGcd.main4
   (={arg} /\ u{1} = u_in /\ 0 < u{1} /\ 0 < v{1} ==> res{1}.`2 = res{2}.`1 /\ res{1}.`3 = res{2}.`2)
   (={u,v} /\ u{1} = u_in /\ r{2} = r_in /\ 0 < u{1} /\ 0 < v{1} ==> r_in * res{1}.`1 %% u_in = res{2}.`1  %% u_in /\ res{2}.`2 = res{1}.`2 ).
 progress. smt().
 progress.  smt(). smt().
-conseq opt_3. smt().
-
-  
+conseq opt_3. smt().  
 transitivity OptExtGcd.main5
   (={arg} /\ u{1} = u_in /\ 0 < u{1} /\ 0 < v{1} ==> ={res})
   (={u,v} /\ u{1} = u_in /\ r{2} = r_in /\ 0 < u{1} /\ 0 < v{1} ==> r_in * res{1}.`1 %% u_in = res{2}.`1  %% u_in /\ res{2}.`2 = res{1}.`2 ).
 progress. smt().
 progress.  
 conseq opt_4. smt().
-
 transitivity OptExtGcd.main6
   (={arg} /\ u{1} = u_in /\ 0 < u{1} /\ 0 < v{1} ==> ={res})
   (={u,v} /\ u{1} = u_in /\ r{2} = r_in /\ 0 < u{1} /\ 0 < v{1} ==> r_in * res{1}.`1 %% u_in = res{2}.`1  %% u_in /\ res{2}.`2 = res{1}.`2 ).
 progress. smt().
 progress.  
 conseq opt_5. progress. progress. smt().
-
-
 transitivity OptExtGcd.main7
   (={arg} /\ u{1} = u_in /\ 0 < u{1} /\ 0 < v{1} ==> res{1}.`1 %% u_in = res{2}.`1 %% u_in /\ res{1}.`2 = res{2}.`2)
   (={u,v} /\ u{1} = u_in /\ r{2} = r_in /\ 0 < u{1} /\ 0 < v{1} ==> r_in * res{1}.`1 %% u_in = res{2}.`1  %% u_in /\ res{2}.`2 = res{1}.`2 ).
 progress. smt().
 progress.    rewrite - H1. smt(@Int @IntDiv). smt().  
 conseq (opt_6 u_in). progress. 
-
 transitivity OptExtGcd.main8
   (={arg} /\ u{1} = u_in /\ 0 < u{1} /\ 0 < v{1} ==> ={res})
   (={u,v} /\ u{1} = u_in /\ r{2} = r_in /\ 0 < u{1} /\ 0 < v{1} /\ r{2} = r_in ==> r_in * res{1}.`1 %% u_in = res{2}.`1  %% u_in /\ res{2}.`2 = res{1}.`2 ).
 progress. exists (u{2}, v{2}). progress. smt(). smt(). smt(). smt().
-auto.
-  
+auto.  
 progress.    
 conseq (opt_7). progress.
-
 conseq (opt_8 u_in r_in). progress.  
-
 progress. smt().
 qed.  
+
 
 require import Distr.
   
 lemma opt_main9_full_correctness &m u v r: 2 < u => 0 < v => odd u => odd r => 
     1%r = Pr[ OptExtGcd.main9(u,v,r) @&m : v *  (res.`1) %% u =  r * (gcd u v) %% u ].
-
 progress.
-have f : 1%r <= Pr[ OptExtGcd.main9(u,v,r) @&m : v *  (res.`1) %% u =  r * (gcd u v) %% u ].
-    
+have f : 1%r <= Pr[ OptExtGcd.main9(u,v,r) @&m : v *  (res.`1) %% u =  r * (gcd u v) %% u ].    
 rewrite - (main2_full_correctness &m u v);auto. smt().
 byequiv.
 symmetry.    
@@ -1036,14 +1018,14 @@ have ->: inv u v * (v %% u) * res{hr}.`1 %% u
     smt (@Int @IntDiv).
 have ->: inv u v * (v %% u) %% u = inv u v * v %% u.
     smt (@Int @IntDiv).
-    rewrite inv_ax. smt(). auto.
+    rewrite inv_ax. auto. smt(). auto.
 smt(@Distr).
 qed.    
 
 
-lemma opt_main10_full_correctness2 &m u v r: 2 < u => 0 < v => odd u => odd r =>
-    gcd u v = 1 =>
-    1%r = Pr[ OptExtGcd.main10(u,v,r) @&m :  (res.`1) %% u =  (inv u v) * r %% u ].
+lemma modular_inversion_correctness &m u v r:
+  2 < u => 0 < v => odd u => odd r => gcd u v = 1 =>
+    Pr[ OptExtGcd.main10(u, v, r)@&m :  (res.`1) %% u = (inv u v) * r %% u ] = 1%r.
 progress.    
 rewrite (opt_main9_full_correctness2 &m u v r);auto.
 byequiv.

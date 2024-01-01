@@ -15,8 +15,7 @@ lemma gcd6 t v : gcd t v = gcd (t - v) v. smt. qed.
 
 
 op inv : int -> int -> int.
-  (* add proper conditions *)
-axiom inv_ax u v : (inv u v) * v %% u = 1. 
+axiom inv_ax u v : gcd u v = 1 => (inv u v) * v %% u = 1. 
 
 
 op div_by2s (i : int) : int.
