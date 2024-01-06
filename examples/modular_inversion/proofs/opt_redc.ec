@@ -36,34 +36,82 @@ module OptREDC = {
 
 
   
-  (*  proc overflowingAdd(augend : int, addend : int, R : int) : int * bool = {   *)
-  (*    var sum <- (augend + addend) %% R; *)
-  (*    return (sum, sum < augend); *)
-  (*  }   *)
+   proc overflowingAdd(augend : int, addend : int, R : int) : int * bool = {
+     var sum <- (augend + addend) %% R;
+     return (sum, sum < augend);
+   }
 
 
-  (* proc main(Tlo : int, Thi : int, R : int, N : int, N' : int) = { *)
-  (*   var m, hi, lo, s, tmp : int; *)
-  (*   var overflowed : bool; *)
+  proc main(Tlo : int, Thi : int, R : int, N : int, N' : int) = {
+    var m, hi, lo, s, tmp : int;
+    var overflowed : bool;
 
-  (*   m <- (Tlo * N') %% R; *)
+    m <- (Tlo * N') %% R;
      
-  (*   hi <- (Thi + ((m * N) %/ R)); *)
-  (*   tmp <- (m * N) %% R; *)
-  (*   (lo, overflowed) <@ overflowingAdd(Tlo, tmp, R); *)
-  (*   if (overflowed) { *)
-  (*     hi <- (hi + 1) %% R; *)
-  (*   } *)
+    hi <- (Thi + ((m * N) %/ R)) %% R;
+    tmp <- (m * N) %% R;
+    (lo, overflowed) <@ overflowingAdd(Tlo, tmp, R);
+    if (overflowed) {
+      hi <- (hi + 1) %% R;
+    }
 
-  (*   s <- hi; *)
+    s <- hi;
 
-  (*   if (N < hi){ *)
-  (*     s <- hi - N; *)
-  (*   } *)
-    
-  (* }  *)
+    if (N <= hi){
+      s <- (hi - N) %% R;
+    }
+    return s;
+  } 
+
+  proc main3(Tlo : int, Thi : int, R : int, N : int, N' : int) = {
+    var m, hi, lo, s, tmp : int;
+    var overflowed : bool;
+
+    m <- (Tlo * N') %% R;
+     
+    hi <- (Thi + ((m * N) %/ R)) %% R;
+    tmp <- (m * N) %% R;
+    (lo, overflowed) <@ overflowingAdd(Tlo, tmp, R);
+    hi <- if overflowed then (hi + 1) %% R else hi;
+    s <- if N <= hi then (hi - N) %% R else hi;
+    return s;
+  }
+
+  proc main4(Tlo : int, Thi : int, R : int, N : int, N' : int) = {
+    var m, hi, lo, s, tmp : int;
+    m <- (Tlo * N') %% R;     
+    hi <- (Thi + ((m * N) %/ R)) %% R;
+    tmp <- (m * N) %% R;
+    lo <- (Tlo + tmp) %% R;
+    hi <- if lo < Tlo then (hi + 1) %% R else hi;
+    s <- if N <= hi then (hi - N) %% R else hi;
+    return s;
+  }
+
+
+  proc main5(Tlo : int, Thi : int, R : int, N : int, N' : int) = {
+    var m, t, r;
+    m <- (Tlo * N') %% R;     
+    t <- (Thi + ((m * N) %/ R)) %% R;
+    t <- if (Tlo + (m * N) %% R) %% R < Tlo then (t + 1) %% R else t;
+    r <- if N <= t then (t - N) %% R else t;
+    return r;
+  }
+  
 
 }.
+
+
+lemma maeq : equiv [ OptREDC.main ~ OptREDC.main3 : ={arg} ==> ={res}].
+proc. inline*. wp. skip. progress. qed.
+lemma maeq2 : equiv [ OptREDC.main3 ~ OptREDC.main4 : ={arg} ==> ={res}].
+proc. inline*. wp. skip. progress. qed.
+lemma maeq3 : equiv [ OptREDC.main4 ~ OptREDC.main5 : ={arg} ==> ={res}].
+proc. inline*. wp. skip. progress. qed.
+lemma maeq4 : equiv [ OptREDC.main5 ~ OptREDC.main2 : ={arg} ==> ={res}].
+proc. inline*. wp. skip. progress. qed.
+
+
 
 
 op o_m_val T R N' = ((T %% R) * N') %% R.
