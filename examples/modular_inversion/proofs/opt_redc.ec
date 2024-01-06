@@ -74,7 +74,7 @@ op o_redc T R N' N = let t = o_t_val T R N' N in if N <= t then t - N else t.
 op o2_t_val' T R N' N = (T %/ R + ((o_m_val T R N') * N) %/ R) %% R.
 op o2_t_val T R N' N = (o_t_val' T R N' N + if ((T + (((o_m_val T R N') * N))) %% R < T %% R) then 1 else 0) %% R.
 
-op o2_redc T R N' N = let t = o_t_val T R N' N in if N <= t then (t - N) %% R else t.
+op o2_redc T R N' N = let t = o2_t_val T R N' N in if N <= t then (t - N) %% R else t.
 
 
     
@@ -146,8 +146,22 @@ progress. rewrite - opt_tval_eq2. auto.
 smt.
 qed. 
 
-(* lemma aux6 T R N' N : 0 < R => 0 < N => 0 <= T < R * N => *)
-(*     0 <= (t_val T R N' N) < 2 * N. *)
+lemma opt_redc_eq3 T R N' N : 2 * N < R =>
+ (o2_redc T R N' N)  = o_redc T R N' N.
+progress.
+rewrite /o2_redc /o_redc. 
+rewrite opt_tval_eq3. auto.
+simplify. 
+case (N <= o_t_val T R N' N ). progress.
+rewrite - opt_tval_eq. progress.
+have : 0 <= (t_val T R N' N) < 2 * N.
+ apply aux6. admit. admit. admit. progress.
+have : 2 * N < R. admit.
+smt.
+auto.
+qed. 
+ 
+
 
 lemma opt_redc_eq T R N' N :
     o_redc T R N' N = redc T R N' N .
@@ -157,25 +171,4 @@ rewrite opt_tval_eq. auto.
  auto.
 qed.    
 
-(* require import Redc. *)
-(* lemma opt_redc_eq : *)
-(*     equiv [ REDC.main ~ OptREDC.main1 : ={arg} ==> ={res} ]. *)
 
-(* proc. *)
-(* simplify. *)
-(* seq 1 1 : (#pre /\ ={m}). *)
-(* sim. *)
-
-(* seq 1 2 : (#pre /\ ={m, t}). *)
-(* wp. skip. progress. *)
-
-
-(* rewrite qq. *)
-(* have ->:  (T{2} + m{2} * N{2}) %% R{2}  *)
-(*      =  (T{2} %% R{2} + (m{2} * N{2} %% R{2})) %% R{2}. *)
-(* smt(@Int @IntDiv).      *)
-(* case ((T{2} %% R{2} + m{2} * N{2} %% R{2}) %% R{2} < T{2} %% R{2}). *)
-(* simplify. auto. *)
-(* simplify. auto. *)
-(* sim. *)
-(* qed.      *)
