@@ -39,7 +39,6 @@ module OptREDC = {
   }
 
 
-
   proc _REDC4(T : int, R : int, N : int, N' : int) = {
     var m, t, r;
     m <- ((T %% R) * N') %% R;
@@ -61,9 +60,6 @@ module OptREDC = {
     r <- if N <= t then  (t - N) %% R else t;
     return r;
   } 
-
-
-  
 
 }.
 
@@ -99,6 +95,7 @@ have ->:
 auto.  
 wp. skip. progress.
 qed.  
+
 
 lemma maeq5 : equiv [ OptREDC._REDC4 ~ OptREDC._REDC5 : ={arg} ==> ={res}].
 proc. inline*. wp. skip. progress. qed.

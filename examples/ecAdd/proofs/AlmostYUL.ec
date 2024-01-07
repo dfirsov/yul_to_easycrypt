@@ -9,7 +9,6 @@ module AlmostYul = {
      return (sum, sum < augend);
    }
 
-
   proc _REDC(Tlo : int, Thi : int, R : int, N : int, N' : int) = {
     var m, hi, lo, s, tmp, overflowed;
 
