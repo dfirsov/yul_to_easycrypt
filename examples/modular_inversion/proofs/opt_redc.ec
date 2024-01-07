@@ -1,27 +1,12 @@
 require import AllCore Int IntDiv.
 require import Gcd Gcd_props.
 
-op mul : int -> int -> int.
-op add : int -> int -> int.
-op sub : int -> int -> int.
-op getHighestHalfOfMultiplication: int -> int -> int.
+require import AlmostYUL.
+
 
 module OptREDC = {
 
   proc main1(T : int, R : int, N : int, N' : int) = {
-    var m, t, r;
-    m <- ((T %% R) * N') %% R;
-    t <- (T %/ R + (m * N) %/ R);
-    t <- if ((T + ((m * N))) %% R < T %% R) then t + 1 else t;
-    if (N <= t){
-      r <- t - N;
-    }else{
-      r <- t;
-    }
-    return r;
-  } 
-
-  proc main2(T : int, R : int, N : int, N' : int) = {
     var m, t, r;
     m <- ((T %% R) * N') %% R;
     t <- (T %/ R + (m * N) %/ R) %% R;
@@ -34,50 +19,29 @@ module OptREDC = {
     return r;
   } 
 
-
-  
-   proc overflowingAdd(augend : int, addend : int, R : int) : int * bool = {
-     var sum <- (augend + addend) %% R;
-     return (sum, sum < augend);
-   }
-
-
-  proc main(Tlo : int, Thi : int, R : int, N : int, N' : int) = {
-    var m, hi, lo, s, tmp : int;
-    var overflowed : bool;
-
-    m <- (Tlo * N') %% R;
-     
-    hi <- (Thi + ((m * N) %/ R)) %% R;
-    tmp <- (m * N) %% R;
-    (lo, overflowed) <@ overflowingAdd(Tlo, tmp, R);
-    if (overflowed) {
-      hi <- (hi + 1) %% R;
-    }
-
-    s <- hi;
-
-    if (N <= hi){
-      s <- (hi - N) %% R;
-    }
-    return s;
+  proc main2(T : int, R : int, N : int, N' : int) = {
+    var m, t, r;
+    m <- ((T %% R) * N') %% R;
+    t <- (T %/ R + (m * N) %/ R) %% R;
+    t <- if ((T + ((m * N))) %% R < T %% R) then (t + 1) %% R else t;
+    r <- if N <= t then  (t - N) %% R else t;
+    return r;
   } 
 
-  proc main3(Tlo : int, Thi : int, R : int, N : int, N' : int) = {
+
+  proc _REDC1(Tlo : int, Thi : int, R : int, N : int, N' : int) = {
     var m, hi, lo, s, tmp : int;
     var overflowed : bool;
-
     m <- (Tlo * N') %% R;
-     
     hi <- (Thi + ((m * N) %/ R)) %% R;
     tmp <- (m * N) %% R;
-    (lo, overflowed) <@ overflowingAdd(Tlo, tmp, R);
+    (lo, overflowed) <@ AlmostYul.overflowingAdd(Tlo, tmp, R);
     hi <- if overflowed then (hi + 1) %% R else hi;
     s <- if N <= hi then (hi - N) %% R else hi;
     return s;
   }
 
-  proc main4(Tlo : int, Thi : int, R : int, N : int, N' : int) = {
+  proc _REDC2(Tlo : int, Thi : int, R : int, N : int, N' : int) = {
     var m, hi, lo, s, tmp : int;
     m <- (Tlo * N') %% R;     
     hi <- (Thi + ((m * N) %/ R)) %% R;
@@ -89,7 +53,7 @@ module OptREDC = {
   }
 
 
-  proc main5(Tlo : int, Thi : int, R : int, N : int, N' : int) = {
+  proc _REDC3(Tlo : int, Thi : int, R : int, N : int, N' : int) = {
     var m, t, r;
     m <- (Tlo * N') %% R;     
     t <- (Thi + ((m * N) %/ R)) %% R;
@@ -102,27 +66,57 @@ module OptREDC = {
 }.
 
 
-lemma maeq : equiv [ OptREDC.main ~ OptREDC.main3 : ={arg} ==> ={res}].
-proc. inline*. wp. skip. progress. qed.
-lemma maeq2 : equiv [ OptREDC.main3 ~ OptREDC.main4 : ={arg} ==> ={res}].
-proc. inline*. wp. skip. progress. qed.
-lemma maeq3 : equiv [ OptREDC.main4 ~ OptREDC.main5 : ={arg} ==> ={res}].
-proc. inline*. wp. skip. progress. qed.
-lemma maeq4 : equiv [ OptREDC.main5 ~ OptREDC.main2 : ={arg} ==> ={res}].
-proc. inline*. wp. skip. progress. qed.
-
-
-
 
 op o_m_val T R N' = ((T %% R) * N') %% R.
 op o_t_val' T R N' N = (T %/ R + ((o_m_val T R N') * N) %/ R).
 op o_t_val T R N' N = o_t_val' T R N' N + if ((T + (((o_m_val T R N') * N))) %% R < T %% R) then 1 else 0.
 op o_redc T R N' N = let t = o_t_val T R N' N in if N <= t then t - N else t.
-
 op o2_t_val' T R N' N = (T %/ R + ((o_m_val T R N') * N) %/ R) %% R.
-op o2_t_val T R N' N = (o_t_val' T R N' N + if ((T + (((o_m_val T R N') * N))) %% R < T %% R) then 1 else 0) %% R.
-
+op o2_t_val T R N' N = (if ((T + (((o_m_val T R N') * N))) %% R < T %% R) then o_t_val' T R N' N + 1 else o_t_val' T R N' N) %% R.
 op o2_redc T R N' N = let t = o2_t_val T R N' N in if N <= t then (t - N) %% R else t.
+
+
+lemma maeq : equiv [ AlmostYul._REDC ~ OptREDC._REDC1 : ={arg} ==> ={res}].
+proc. inline*. wp. skip. progress. qed.
+lemma maeq2 : equiv [ OptREDC._REDC1 ~ OptREDC._REDC2 : ={arg} ==> ={res}].
+proc. inline*. wp. skip. progress. qed.
+lemma maeq3 : equiv [ OptREDC._REDC2 ~ OptREDC._REDC3 : ={arg} ==> ={res}].
+proc. inline*. wp. skip. progress. qed.
+lemma maeq4 : equiv [ OptREDC._REDC3 ~ OptREDC.main1 : Tlo{1} = T{2} %% R{2} /\ Thi{1} = T{2} %/ R{2}
+       /\ ={R, N, N'} ==> ={res}].
+proc.
+seq 1 1 : (#pre /\ ={m}). wp. skip. progress.
+seq 1 1 : (#pre /\ ={t}). wp. skip. progress.
+seq 1 1 : (#pre /\ ={t}). wp. skip. progress.
+have ->:
+ (T{2} %% R{2} + m{2} * N{2} %% R{2}) %% R{2}
+  = (T{2} + m{2} * N{2} ) %% R{2}. smt(@Int @IntDiv).
+auto.  
+have ->:
+ (T{2} %% R{2} + m{2} * N{2} %% R{2}) %% R{2}
+  = (T{2} + m{2} * N{2} ) %% R{2}. smt(@Int @IntDiv).
+auto.  
+wp. skip. progress.
+qed.  
+
+lemma maeq5 : equiv [ OptREDC.main1 ~ OptREDC.main2 : ={arg} ==> ={res}].
+proc. inline*. wp. skip. progress. qed.
+
+
+
+lemma maeq6 T R N' N : phoare[ OptREDC.main2 : arg = (T,R,N,N') ==> res = o2_redc T R N' N ] = 1%r.
+proc.
+seq 1 : (#pre /\ m = o_m_val T R N'). wp. skip. auto. wp. skip. smt().
+seq 2 : (#pre /\ t = o2_t_val T R N' N). wp. skip. auto. wp. skip.
+progress.  rewrite /o2_t_val. rewrite /o_t_val'.
+case ((T{hr} + o_m_val T{hr} R{hr} N'{hr} * N{hr}) %% R{hr} < T{hr} %% R{hr}).
+progress. smt (@Int @IntDiv). smt (@Int @IntDiv).
+wp. skip. progress. hoare. simplify. 
+seq 2 : (#pre /\ t = o2_t_val T R N' N). wp. skip. progress.  rewrite /o2_t_val. rewrite /o_t_val'.
+case ((T{hr} + o_m_val T{hr} R{hr} N'{hr} * N{hr}) %% R{hr} < T{hr} %% R{hr}).
+progress. smt (@Int @IntDiv). smt (@Int @IntDiv). auto. auto.
+hoare. wp. skip. progress. auto.
+qed.    
 
 
     
@@ -220,3 +214,56 @@ rewrite opt_tval_eq. auto.
 qed.    
 
 
+
+
+lemma almost_yul_redc_full_correctness  T Tlo Thi R N' N :
+ phoare[ AlmostYul._REDC : arg = (Tlo,Thi,R,N,N')
+        ==> res = T * (inv N R) %% N ] = 1%r.
+proof. bypr. progress.
+have <-: Pr[ OptREDC.main2(T,R,N,N') @&m : res = T * (inv N R) %% N] = 1%r.
+have ->: Pr[OptREDC.main2(T, R, N, N') @ &m : res = T * inv N R %% N]
+ = Pr[OptREDC.main2(T, R, N, N') @ &m : res = o2_redc T R N' N].
+rewrite Pr[mu_eq] . progress.
+rewrite opt_redc_eq3. admit.
+rewrite -  (redc_fun_correct T R N' N).  admit. admit. admit. admit. admit.
+rewrite opt_redc_eq. auto. 
+rewrite opt_redc_eq3. admit.
+rewrite -  (redc_fun_correct T R N' N).  admit. admit. admit. admit. admit.
+rewrite opt_redc_eq. auto.  auto.
+byphoare (_: arg = (T,R,N,N') ==> _).
+apply maeq6. auto. auto.
+
+
+byequiv. progress.
+
+
+transitivity OptREDC._REDC1
+ (={arg} ==> ={res})
+ (={R,N,N'} ==> ={res}).
+smt().  auto.
+apply maeq.
+
+
+transitivity OptREDC._REDC2
+ (={arg} ==> ={res})
+ (={R,N,N'} ==> ={res}).
+smt().  auto.
+apply maeq2.
+
+
+transitivity OptREDC._REDC3
+ (={arg} ==> ={res})
+ (={R,N,N'} ==> ={res}).
+smt().  auto.
+apply maeq3.
+
+transitivity OptREDC.main1    
+ (Tlo{1} = T{2} %% R{2} /\ Thi{1} = T{2} %/ R{2}
+       /\ ={R, N, N'} ==> ={res})
+ (={arg} ==> ={res}).
+  auto.
+admit. auto.
+
+conseq maeq4. admit.
+conseq maeq5. smt(). auto.
+qed. 
