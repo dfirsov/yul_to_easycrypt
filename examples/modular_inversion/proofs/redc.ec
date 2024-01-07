@@ -2,22 +2,6 @@ require import AllCore Int IntDiv.
 require import Gcd Gcd_props.
 
 
-module REDC = {  
-  proc main(T : int, R : int, N : int, N' : int) = {
-    var m, t, r;
-    m <- ((T %% R) * N') %% R;
-    t <- (T + m * N) %/ R;
-    if (N <= t ){
-      r <- t - N;
-    }else{
-      r <- t;
-    }
-    return r;
-  }
-  
-}.
-
-
 
 
 op m_val T R N' = ((T %% R) * N') %% R.
@@ -26,22 +10,40 @@ op t_val T R N' N = (t_val' T R N' N) %/ R.
 op redc T R N' N = let t = t_val T R N' N in if N <= t then t - N else t.
 
 
-lemma aux1 (T R N' N : int) : (N' * N %% R) = -1 %% R =>
+lemma aux1 (T R N' N : int) : (N' * N %% R) = (-1) %% R =>
     R %| t_val' T R N' N.
 move => ass1.    
 apply dvdzE.
-rewrite /t_val /m_val.
-have ->: (T + T %% R * N' %% R * N) %% R = (T + T * N' * N) %% R.
- have ->:  (T + T * N' * N) %% R = (T %% R + T * N' * N %% R) %% R.
-    smt(@Int @IntDiv).
-        smt(@Int @IntDiv).
-have ->: (T + T * N' * N) %% R = (T + T * (N' * N %% R)) %% R.
-timeout 5.     smt(@Int @IntDiv).    
+rewrite /t_val /m_val /t_val' /m_val.
+have ->: (T + T %% R * N' %% R * N) %% R
+     = (T %% R + T %% R * N' %% R * N %% R) %% R.
+smt(@Int @IntDiv).     
+have ->: T %% R * N' %% R * N %% R = (T %% R * N' %% R * N %% R) %% R.
+smt(@Int @IntDiv).     
+have ->: (T %% R * N' %% R * N %% R) %% R = (T %% R * N' %% R * (N %% R) %% R) %% R.
+smt(@Int @IntDiv).     
+have ->: T %% R * N' %% R = T %% R * (N' %% R) %% R.
+smt(@Int @IntDiv).     
+have ->: T %% R * (N' %% R) %% R * (N %% R) %% R = T %% R * (N' %% R)  * (N %% R) %% R.
+smt(@Int @IntDiv).
+have ->: T %% R * (N' %% R)  * (N %% R) %% R = T %% R * ((N' %% R)  * (N %% R)) %% R.
+smt(@Int @IntDiv).
+have ->: T %% R * ((N' %% R)  * (N %% R)) %% R = T %% R * (((N' %% R)  * (N %% R)) %% R) %% R.
+     smt(@Int @IntDiv).
+have ->: (((N' %% R)  * (N %% R)) %% R) = (((N' )  * (N )) %% R).
+     smt(@Int @IntDiv).
 rewrite ass1.
-smt(@Int @IntDiv).    
+have ->:  T %% R * ((-1) %% R) %% R %% R =  T %% R * ((-1) %% R) %% R.
+     smt(@Int @IntDiv).
+have ->: T %% R * ((-1) %% R) %% R = T  * ((-1) ) %% R.
+     smt(@Int @IntDiv).
+
+have ->: (T %% R + T * (-1) %% R) %% R = (T  + T * -1 ) %% R .
+     smt(@Int @IntDiv).
+     smt(@Int @IntDiv).     
 qed.    
 
-lemma aux2 (T R N' N : int) : (N' * N %% R) = -1 %% R =>
+lemma aux2 (T R N' N : int) : (N' * N %% R) = (-1) %% R =>
     exists k, t_val' T R N' N = k * R.
 move => ass1.    
 apply dvdzP. apply aux1. assumption. qed.
@@ -62,7 +64,7 @@ rewrite inv_ax.     auto.
 simplify.  auto.
 qed.    
 
-lemma aux3 T R N' N : R <> 0 => coprime N R => (N' * N %% R) = -1 %% R =>
+lemma aux3 T R N' N : R <> 0 => coprime N R => (N' * N %% R) = (-1) %% R =>
     (t_val T R N' N) %% N = T * (inv N R) %% N.
 proof. progress.
 rewrite /t_val gen;auto. apply aux1. assumption.
@@ -112,7 +114,7 @@ apply kk. auto. smt(). smt.
 qed.    
 
 lemma redc_fun_correct T R N' N : 0 < R => 0 < N => 0 <= T < R * N =>
-   (N' * N %% R) = -1 %% R => coprime N R =>
+   (N' * N %% R) = (-1) %% R => coprime N R =>
     (redc T R N' N) = T * (inv N R) %% N.
 progress.
 rewrite /redc.
@@ -122,22 +124,9 @@ case (N <= t_val T R N' N). progress.
 have f : t_val T R N' N < 2 * N. smt(aux6).    
 smt.
 progress.    
-have f : 0 <= t_val T R N' N < N. smt().
+have f : 0 <= t_val T R N' N < N. progress. smt. smt.
 smt.
 qed.    
-
-
-lemma REDC_main T R N' N :
-  phoare [ REDC.main : arg = (T, R, N, N') ==> res = T * (inv N R) %% N ] = 1%r.    
-proc.
-wp.  skip. progress.
-rewrite -   (redc_fun_correct T{hr} R{hr} N'{hr} N{hr}).    
-admit. admit. admit. admit. admit.
-rewrite /redc. simplify. rewrite /t_val /t_val' /m_val H.  simplify. auto.
-rewrite -   (redc_fun_correct T{hr} R{hr} N'{hr} N{hr}).    
-admit. admit. admit. admit. admit.
-rewrite /redc. simplify. rewrite /t_val /t_val' /m_val H.  simplify. auto.
-qed.
 
 
     
