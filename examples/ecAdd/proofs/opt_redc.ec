@@ -220,8 +220,9 @@ lemma almost_yul_redc_full_correctness T_in Tlo Thi R_in N' N :
   Tlo = T_in %% R_in =>
   Thi = T_in %/ R_in =>
   
- phoare[ AlmostYul._REDC : arg = (Tlo,Thi,R_in,N,N')
-        ==> res = T_in * (inv N R_in) %% N ] = 1%r.
+ phoare[ AlmostYul._REDC : 
+         arg = (Tlo,Thi,R_in,N,N')
+              ==> res = T_in * (inv N R_in) %% N ] = 1%r.
       
 proof. progress. bypr. progress.
 have <-: Pr[ OptREDC._REDC5(T_in,R_in,N,N') @&m : res = T_in * (inv N R_in) %% N] = 1%r.

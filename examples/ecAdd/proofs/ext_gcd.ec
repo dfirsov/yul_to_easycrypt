@@ -301,7 +301,16 @@ progress.
 smt(@Int @IntDiv).
 qed.    
  
+    (* 
 
+
+inv (a * R)  = (a * R)^(-1) = a^-1 * R^-1
+
+
+a^-1 * R^-1  * R^2 = a^-1 * R
+
+
+*)
 
 lemma main2_full_correctness &m u v : 0 < u => 0 < v => odd u =>
     Pr[ ExtGCD.main2(u,v) @&m : (v * res.`2 %% u = res.`3 %% u) /\ (res.`3 = (gcd u v)) ] = 1%r.

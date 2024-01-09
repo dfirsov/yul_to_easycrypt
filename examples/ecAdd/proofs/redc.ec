@@ -3,7 +3,6 @@ require import Gcd Gcd_props.
 
 
 
-
 op m_val T R N' = ((T %% R) * N') %% R.
 op t_val' T R N' N = (T + (m_val T R N') * N).
 op t_val T R N' N = (t_val' T R N' N) %/ R.
