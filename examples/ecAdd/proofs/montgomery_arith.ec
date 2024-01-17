@@ -359,3 +359,8 @@ lemma submod_h a_in b_in m_in :
 lemma outof_m_h m_in :
     hoare [ AlmostYul.outOfMontgomeryForm : arg = m_in  /\ 0 <= m < P ==> res = m_in * (inv P R) %% P ].
 admitted.
+
+
+lemma addmod_h a_in b_in m_in :
+    hoare [ AlmostYul.addmod : arg = (a_in,b_in,m_in)  /\ 0 <= a_in < m_in /\ 0 <= 2 * m_in < R
+      /\  0 <= b_in <= m_in ==> res = (a_in + b_in) %% m_in ]. admitted.
