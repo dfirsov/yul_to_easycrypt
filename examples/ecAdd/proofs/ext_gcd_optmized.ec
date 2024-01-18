@@ -1102,7 +1102,8 @@ lemma modular_inversion_correctness  u v r:
     phoare[ OptExtGcd.main10 :  arg = (u, v, r) ==> res.`1 = (inv u v) * r %% u ] = 1%r.
 progress.
 bypr. progress.
-  have : Pr[OptExtGcd.main10(u{m0}, v{m0}, r{m0}) @ &m0 : res.`1 = inv u v * r %% u] >= 1%r.
-     apply (modular_inversion_correctness''' &m0 u v r);auto.
+  have : Pr[OptExtGcd.main10(u{m}, v{m}, r{m}) @ &m : res.`1 = inv u v * r %% u] >= 1%r.
+     apply (modular_inversion_correctness''' &m u v r);auto.
 smt(@Distr).    
 qed.
+

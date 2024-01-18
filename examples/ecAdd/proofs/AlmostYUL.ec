@@ -9,6 +9,10 @@ op as_bool (b : bool) = b.
 
 module AlmostYul = {
 
+  proc skipf() : unit = {
+
+  }
+
   proc addmod(a : int, b : int, modulus : int) : int = {
     var sum <- (a + b) %% R  %% modulus;
     return sum;

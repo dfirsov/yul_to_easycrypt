@@ -364,3 +364,19 @@ admitted.
 lemma addmod_h a_in b_in m_in :
     hoare [ AlmostYul.addmod : arg = (a_in,b_in,m_in)  /\ 0 <= a_in < m_in /\ 0 <= 2 * m_in < R
       /\  0 <= b_in <= m_in ==> res = (a_in + b_in) %% m_in ]. admitted.
+
+
+op pointIsInCurve (x y : int) = (y * y) %% P = (x * x * x + 3) %% P.
+
+
+lemma pointIsInCurve_m_h (x_in y_in : int) :
+ hoare [ AlmostYul.pointIsInCurve : arg = (x_in * R %% P, y_in * R %% P) ==>  
+       res = (y_in * y_in * R %% P = (x_in * x_in * x_in * R + 3 * R) %% P ) ].
+admitted.
+
+    
+lemma pointIsInCurve_m (x_in y_in : int) :
+ phoare [ AlmostYul.pointIsInCurve : arg = (x_in * R %% P, y_in * R %% P) ==>  
+       res = (y_in * y_in * R %% P = (x_in * x_in * x_in * R + 3 * R) %% P ) ] = 1%r.
+admitted.
+    
