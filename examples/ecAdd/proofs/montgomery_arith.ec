@@ -10,6 +10,7 @@ axiom ax1 : 2 * P < R.
 axiom ax2 : 0 < P.
 axiom ax3 :  N' * P %% R = (-1) %% R.
 axiom ax4 :  coprime P R.
+axiom ax4_1 :  coprime R P.
 axiom R_pos : 0 < R. 
 axiom ax5 : 0 <= R2_MOD_P < P.
 axiom ax6 : R2_MOD_P = (R * R) %% P.
