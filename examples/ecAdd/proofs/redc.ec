@@ -2,7 +2,7 @@ require import AllCore Int IntDiv.
 require import Gcd Gcd_props.
 
 
-
+(* functional specification  *)
 op m_val T R N' = ((T %% R) * N') %% R.
 op t_val' T R N' N = (T + (m_val T R N') * N).
 op t_val T R N' N = (t_val' T R N' N) %/ R.
@@ -36,7 +36,6 @@ have ->:  T %% R * ((-1) %% R) %% R %% R =  T %% R * ((-1) %% R) %% R.
      smt(@Int @IntDiv).
 have ->: T %% R * ((-1) %% R) %% R = T  * ((-1) ) %% R.
      smt(@Int @IntDiv).
-
 have ->: (T %% R + T * (-1) %% R) %% R = (T  + T * -1 ) %% R .
      smt(@Int @IntDiv).
      smt(@Int @IntDiv).     

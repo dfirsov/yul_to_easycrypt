@@ -4,7 +4,6 @@ require import Parameters.
 
 
 op getHighestHalfOfMultiplication (a b : int) : int = (a * b) %/ R.
-op as_bool (b : bool) = b.
 
 
 module AlmostYul = {
@@ -212,7 +211,7 @@ proc main(x1: int, y1: int, x2: int, y2: int) : int * int = {
         p1IsInfinity <@ isInfinity(x1,y1);
         p2IsInfinity <@ isInfinity(x2,y2);
         func17 <@ and(p1IsInfinity,p2IsInfinity);
-        if(as_bool func17){
+        if(func17){
             ret <- (0,0);
             ret_bool <- true;
 
@@ -222,13 +221,13 @@ proc main(x1: int, y1: int, x2: int, y2: int) : int * int = {
 
         func47 <@ iszero(p2IsInfinity);
         func43 <@ and(p1IsInfinity,func47);
-        if(as_bool func43){
+        if(func43){
             func57 <@ isOnFieldOrder(x2);
             func55 <@ iszero(func57);
             func63 <@ isOnFieldOrder(y2);
             func61 <@ iszero(func63);
             func53 <@ or(func55,func61);
-            if(as_bool func53){
+            if(func53){
                 burnGas();
 
             }
@@ -236,7 +235,7 @@ proc main(x1: int, y1: int, x2: int, y2: int) : int * int = {
             m_y2 <@ intoMontgomeryForm(y2);
             func81 <@ pointIsInCurve(m_x2,m_y2);
             func79 <@ iszero(func81);
-            if(as_bool func79){
+            if(func79){
                 burnGas();
 
             }
@@ -249,13 +248,13 @@ proc main(x1: int, y1: int, x2: int, y2: int) : int * int = {
 
         func111 <@ iszero(p1IsInfinity);
         func109 <@ and(func111,p2IsInfinity);
-        if(as_bool func109){
+        if(func109){
             func123 <@ isOnFieldOrder(x1);
             func121 <@ iszero(func123);
             func129 <@ isOnFieldOrder(y1);
             func127 <@ iszero(func129);
             func119 <@ or(func121,func127);
-            if(as_bool func119){
+            if(func119){
                 burnGas();
 
             }
@@ -263,7 +262,7 @@ proc main(x1: int, y1: int, x2: int, y2: int) : int * int = {
             m_y1 <@ intoMontgomeryForm(y1);
             func147 <@ pointIsInCurve(m_x1,m_y1);
             func145 <@ iszero(func147);
-            if(as_bool func145){
+            if(func145){
                 burnGas();
 
             }
@@ -279,7 +278,7 @@ proc main(x1: int, y1: int, x2: int, y2: int) : int * int = {
         func185 <@ isOnFieldOrder(y1);
         func183 <@ iszero(func185);
         func175 <@ or(func177,func183);
-        if(as_bool func175){
+        if(func175){
             burnGas();
 
         }
@@ -288,7 +287,7 @@ proc main(x1: int, y1: int, x2: int, y2: int) : int * int = {
         func203 <@ isOnFieldOrder(y2);
         func201 <@ iszero(func203);
         func193 <@ or(func195,func201);
-        if(as_bool func193){
+        if(func193){
             burnGas();
 
         }
@@ -297,7 +296,7 @@ proc main(x1: int, y1: int, x2: int, y2: int) : int * int = {
         func221 <@ submod(0,y1,func227);
         func219 <@ eq(func221,y2);
         func211 <@ and(func213,func219);
-        if(as_bool func211){
+        if(func211){
             m_x1 <@ intoMontgomeryForm(x1);
             m_y1 <@ intoMontgomeryForm(y1);
             m_x2 <@ intoMontgomeryForm(x2);
@@ -307,7 +306,7 @@ proc main(x1: int, y1: int, x2: int, y2: int) : int * int = {
             func261 <@ pointIsInCurve(m_x2,m_y2);
             func259 <@ iszero(func261);
             func249 <@ or(func251,func259);
-            if(as_bool func249){
+            if(func249){
                 burnGas();
 
             }
@@ -326,19 +325,19 @@ proc main(x1: int, y1: int, x2: int, y2: int) : int * int = {
         func307 <@ iszero(func309);
         func297 <@ and(func299,func307);
         func289 <@ and(func291,func297);
-        if(as_bool func289){
+        if(func289){
             burnGas();
 
         }
         func327 <@ eq(x1,x2);
         func333 <@ eq(y1,y2);
         func325 <@ and(func327,func333);
-        if(as_bool func325){
+        if(func325){
             x <@ intoMontgomeryForm(x1);
             y <@ intoMontgomeryForm(y1);
             func351 <@ pointIsInCurve(x,y);
             func349 <@ iszero(func351);
-            if(as_bool func349){
+            if(func349){
                 burnGas();
 
             }
@@ -378,7 +377,7 @@ proc main(x1: int, y1: int, x2: int, y2: int) : int * int = {
         func481 <@ pointIsInCurve(x2,y2);
         func479 <@ iszero(func481);
         func469 <@ or(func471,func479);
-        if(as_bool func469){
+        if(func469){
             burnGas();
 
         }

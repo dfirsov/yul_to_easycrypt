@@ -6,18 +6,10 @@ require import Montgomery_arith.
 
 require import EcAdd_correctness_cases EcAdd_safety_cases EcAdd_spec.
 
-op valid_ecAdd_input (x1 y1 x2 y2) = 
-            x1 < P
-         /\ y1 < P
-         /\ x2 < P
-         /\ y2 < P
-         /\ (!pIsInfinity (x1, y1) => pointIsInCurve x1 y1)
-         /\ (!pIsInfinity (x2, y2) => pointIsInCurve x2 y2).
 
 (* if input is invalid then ecAdd diverges *)
 lemma ecAdd_safety &m (x1_in y1_in x2_in y2_in : int) :
-         0 <= x1_in  /\ 0 <= y1_in  /\ 0 <= x2_in  /\ 0 <= y2_in =>
-    
+         0 <= x1_in  /\ 0 <= y1_in  /\ 0 <= x2_in  /\ 0 <= y2_in =>    
          !valid_ecAdd_input x1_in y1_in x2_in y2_in =>
          Pr[ AlmostYul.main(x1_in, y1_in, x2_in, y2_in)@&m : true ] = 0%r.
 progress.
@@ -32,13 +24,13 @@ conseq (ecAdd_safety_2 x1_in y1_in x2_in y2_in). progress. smt(). auto.
 progress. byphoare (_: arg = (x1_in, y1_in, x2_in, y2_in) ==> _).     
 conseq (ecAdd_safety_1 x1_in y1_in x2_in y2_in _). progress;smt(). smt(). auto. auto.
 qed.     
+
      
 (* if input is valid then we terminate and result agrees with functional specification   *)
 lemma ecAdd_correctness &m (x1_in y1_in x2_in y2_in : int) : 
-        0 <= x1_in  /\ 0 <= y1_in  /\ 0 <= x2_in  /\ 0 <= y2_in =>
-    
+        0 <= x1_in  /\ 0 <= y1_in  /\ 0 <= x2_in  /\ 0 <= y2_in =>    
         valid_ecAdd_input x1_in y1_in x2_in y2_in =>
-        Pr[ AlmostYul.main(x1_in, y1_in, x2_in, y2_in)@&m : res = ecAdd x1_in y1_in x2_in y2_in ] = 1%r.
+        Pr[ AlmostYul.main(x1_in, y1_in, x2_in, y2_in)@&m : Some res = ecAdd x1_in y1_in x2_in y2_in ] = 1%r.
 proof.
 progress.
 case (pIsInfinity (x1_in, y1_in)).
@@ -48,7 +40,7 @@ byphoare (_: arg = (x1_in,y1_in,x2_in,y2_in) ==> _). conseq (ecAdd_correct_1 x1_
 progress. smt(). smt(). smt(). smt(). smt(). auto. auto.
 progress.
  have : Pr[AlmostYul.main(x1_in, y1_in, x2_in, y2_in) @ &m :
-   res = ecAdd x1_in y1_in x2_in y2_in] >= Pr[ AlmostYul.skipf()@&m : true ].
+   Some res = ecAdd x1_in y1_in x2_in y2_in] >= Pr[ AlmostYul.skipf()@&m : true ].
  byequiv (_: arg{2} = (x1_in,y1_in,x2_in,y2_in) ==> _). symmetry.
  conseq (ecAdd_correct_2 x1_in y1_in x2_in y2_in). 
  progress. smt(). smt(). smt(). smt(). smt(). smt(). progress. smt(). auto. auto.
@@ -57,7 +49,7 @@ progress.
 case (pIsInfinity (x2_in, y2_in)).
 progress.
  have : Pr[AlmostYul.main(x1_in, y1_in, x2_in, y2_in) @ &m :
-   res = ecAdd x1_in y1_in x2_in y2_in] >= Pr[ AlmostYul.skipf()@&m : true ].
+   Some res = ecAdd x1_in y1_in x2_in y2_in] >= Pr[ AlmostYul.skipf()@&m : true ].
  byequiv (_: arg{2} = (x1_in,y1_in,x2_in,y2_in) ==> _). symmetry.
  conseq (ecAdd_correct_3 x1_in y1_in x2_in y2_in). 
  progress. smt(). smt(). smt(). smt(). smt(). smt(). progress. smt(). auto. auto.
@@ -67,7 +59,7 @@ progress.
 case (x1_in = x2_in /\ (P - y1_in) %% P = y2_in).
 move => ass.
  have : Pr[AlmostYul.main(x1_in, y1_in, x2_in, y2_in) @ &m :
-   res = ecAdd x1_in y1_in x2_in y2_in] >= Pr[ AlmostYul.skipf()@&m : true ].
+   Some res = ecAdd x1_in y1_in x2_in y2_in] >= Pr[ AlmostYul.skipf()@&m : true ].
  byequiv (_: arg{2} = (x1_in,y1_in,x2_in,y2_in) ==> _). symmetry.
  conseq (ecAdd_correct_4 x1_in y1_in x2_in y2_in). 
  progress. smt(). smt(). smt(). smt(). smt(). smt(). progress. smt(). smt(). auto. auto.
@@ -77,7 +69,7 @@ progress.
 case (x1_in = x2_in /\ y1_in = y2_in).
 move => ass2.
  have : Pr[AlmostYul.main(x1_in, y1_in, x2_in, y2_in) @ &m :
-   res = ecAdd x1_in y1_in x2_in y2_in] >= Pr[ AlmostYul.skipf()@&m : true ].
+   Some res = ecAdd x1_in y1_in x2_in y2_in] >= Pr[ AlmostYul.skipf()@&m : true ].
  byequiv (_: arg{2} = (x1_in,y1_in,x2_in,y2_in) ==> _). symmetry.
  conseq (ecAdd_correct_5 x1_in y1_in x2_in y2_in). 
  progress. smt(). smt(). smt(). smt(). smt(). smt(). progress. smt().  
@@ -86,7 +78,7 @@ move => ass2.
  smt(@Distr).
 progress.
  have : Pr[AlmostYul.main(x1_in, y1_in, x2_in, y2_in) @ &m :
-   res = ecAdd x1_in y1_in x2_in y2_in] >= Pr[ AlmostYul.skipf()@&m : true ].
+   Some res = ecAdd x1_in y1_in x2_in y2_in] >= Pr[ AlmostYul.skipf()@&m : true ].
  byequiv (_: arg{2} = (x1_in,y1_in,x2_in,y2_in) ==> _). symmetry.
  conseq (ecAdd_correct_6 x1_in y1_in x2_in y2_in). 
  progress. smt(). smt(). smt(). smt(). smt(). smt(). progress. smt().  

@@ -1,5 +1,15 @@
 require import Int IntDiv AllCore.
 
+
+axiom ax11 (a b P : int) : coprime P (a * b) => invm (a * b) P %%  P  = invm  a P * invm  b P %% P.
+axiom ax12 a P : coprime P a => invm (a %% P) P = invm  a P.
+lemma ax13 a P : coprime P a = coprime P (a %% P). admitted. (* rewrite /coprime. rewrite gcd4. rewrite - gcd_modl. *)
+(* rewrite gcd4. auto. qed. *)
+
+lemma qq (x a b : int) : 0 < b < a => 0  <= x =>
+     x %/ a <= x %/b. smt.
+qed.
+
 lemma nosmt even_fact (n a : int) : n - a = a => !odd n .
 progress.
 have : n = 2*a.
@@ -60,27 +70,27 @@ qed.
 
 
 
-(* lemma nosmt mul_inj (a b r P : int) : coprime r P => 1 < P  *)
-(*     => a * r %% P = b * r %% P => a %% P = b %% P. *)
-(* move => coprime_h posP eq. *)
-(*  have : a * r * (invm r P) %% P = b * r * (invm r P) %% P. *)
-(*   have ->: (a * r) * (invm r P) %% P = (a * r %% P)  * (invm r P) %% P. *)
-(*   smt(@IntDiv). *)
-(*   rewrite eq. *)
-(*   smt(@IntDiv). *)
-(*   have ->: a * r * invm r P = a * (r * invm r P). smt(@IntDiv). *)
-(*   have ->: b * r * invm r P = b * (r * invm r P). smt(@IntDiv). *)
-(*   have ->: a * (r * invm r P) %% P = a * (r * invm r P %% P) %% P. *)
-(*   smt(@IntDiv). *)
-(*   have ->: b * (r * invm r P) %% P = b * (r * invm r P %% P) %% P. *)
-(*   smt(@IntDiv). *)
-(*   rewrite invmP. auto. auto. rewrite /coprime. smt(@IntDiv).  *)
-(*   simplify. *)
-(*   auto. *)
-(* qed. *)
+lemma nosmt mul_inj (a b r P : int) : coprime r P => 1 < P
+    => a * r %% P = b * r %% P => a %% P = b %% P.
+move => coprime_h posP eq.
+ have : a * r * (invm r P) %% P = b * r * (invm r P) %% P.
+  have ->: (a * r) * (invm r P) %% P = (a * r %% P)  * (invm r P) %% P.
+  smt(@IntDiv).
+  rewrite eq.
+  smt(@IntDiv).
+  have ->: a * r * invm r P = a * (r * invm r P). smt(@IntDiv).
+  have ->: b * r * invm r P = b * (r * invm r P). smt(@IntDiv).
+  have ->: a * (r * invm r P) %% P = a * (r * invm r P %% P) %% P.
+  smt(@IntDiv).
+  have ->: b * (r * invm r P) %% P = b * (r * invm r P %% P) %% P.
+  smt(@IntDiv).
+  rewrite invmP. auto. auto. rewrite /coprime. smt(@IntDiv).
+  simplify.
+  auto.
+qed.
 
-(* lemma nosmt mul_inj_contra_pos (a b r P : int) : coprime r P => 1 < P  *)
-(*   => a %% P <> b %% P =>  a * r %% P <> b * r %% P. *)
-(* proof. smt(mul_inj). qed. *)
+lemma nosmt mul_inj_contra_pos (a b r P : int) : coprime r P => 1 < P
+  => a %% P <> b %% P =>  a * r %% P <> b * r %% P.
+proof. smt(mul_inj). qed.
 
 

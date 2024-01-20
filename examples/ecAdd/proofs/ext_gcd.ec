@@ -5,7 +5,6 @@ require import IntDiv Int.
 require import Gcd_props.
 
 module ExtGCD = {
-
   proc simplify_ts(t1:int,t2:int,t3: int,u:int,v:int) = {
       while (!odd(t3)){
         if (!odd(t1) /\ !odd(t2)){
@@ -113,8 +112,8 @@ module ExtGCD = {
 }.
 
 
-lemma gcd_main_unfold_eq : equiv [ ExtGCD.main ~ ExtGCD.main_unfold1 : ={arg} /\ u{1} <> 0 /\ v{1} <> 0 
-  ==> ={res} ].
+lemma gcd_main_unfold_eq : equiv [ ExtGCD.main ~ ExtGCD.main_unfold1 : 
+  ={arg} /\ u{1} <> 0 /\ v{1} <> 0  ==> ={res} ].
 proof. proc.
 unroll {1} 6.
 seq 5 5 : (={u, v, u1, u2, u3, v1, v2, v3, t1, t2, t3, k} /\ t3{1} <> 0).
@@ -122,19 +121,20 @@ wp. skip. progress. smt.
 rcondt {1} 1. progress. sim.
 qed.
 
-
+timeout 15.
 lemma gcd_t_simp t1_in t2_in t3_in  u1 u2 u3 v1 v2 v3 u_in v_in : 
-  hoare [ ExtGCD.simplify_ts : arg = (t1_in,t2_in,t3_in,u_in,v_in) /\ (odd u_in \/ odd v_in) /\ t3 <> 0
- /\ (u_in * t1 + v_in * t2 = t3
- /\ u_in * u1 + v_in * u2 = u3
- /\ u_in * v1 + v_in * v2 = v3) 
-  ==> (u_in * res.`1 + v_in * res.`2 = res.`3) /\ res.`3 <> 0 ].
+  hoare [ ExtGCD.simplify_ts : arg = (t1_in,t2_in,t3_in,u_in,v_in) 
+         /\ (odd u_in \/ odd v_in) /\ t3 <> 0
+         /\ (u_in * t1 + v_in * t2 = t3
+         /\ u_in * u1 + v_in * u2 = u3
+         /\ u_in * v1 + v_in * v2 = v3) 
+            ==> (u_in * res.`1 + v_in * res.`2 = res.`3) /\ res.`3 <> 0 ].
 proc.
 simplify.
-while((odd u_in \/ odd v_in)
+while ((odd u_in \/ odd v_in)
  /\ (u_in * t1 + v_in * t2 = t3
  /\ u_in * u1 + v_in * u2 = u3
- /\ u_in * v1 + v_in * v2 = v3) /\ u = u_in /\ v = v_in /\ t3 <> 0 ).
+ /\ u_in * v1 + v_in * v2 = v3) /\ u = u_in /\ v = v_in /\ t3 <> 0).
 case ((!odd t1) /\ !odd t2).
  rcondt 1.
  skip. progress.
@@ -142,16 +142,16 @@ case ((!odd t1) /\ !odd t2).
  have ->: (u{hr} * t1{hr} + v{hr} * t2{hr}) %/ 2 =
   (u{hr} * t1{hr} %/ 2 + v{hr} * t2{hr} %/ 2).
  smt(@Int).
- timeout 15. smt(@Int). smt.
+ smt(@Int). smt.
  rcondf 1. skip. progress.
   wp. skip. progress. 
   have t1v : !odd (t1{hr} + v{hr}). smt.
   have t2u : !odd (t2{hr} - u{hr}). smt(@Int).
   have ->: u{hr} * ((t1{hr} + v{hr}) %/ 2) = (u{hr} * (t1{hr} + v{hr})) %/ 2.
-  timeout 15. smt(@Int).
+  smt(@Int).
   have ->: v{hr} * ((t2{hr} - u{hr}) %/ 2) = v{hr} * (t2{hr} - u{hr}) %/ 2.
-  timeout 15. smt(@Int).
-  timeout 15. smt(@Int).
+  smt(@Int).
+  smt(@Int).
   smt.
 skip. progress.
 qed.   
@@ -200,7 +200,8 @@ qed.
 
 lemma gcd_t_simp_eq2 t3_in  : 
   equiv [ ExtGCD.opt_simplify_ts ~ ExtGCD.opt_simplify_ts : t3_in = t3{1} /\ ={t1,t2,u,v} /\ `|t3{1}| = t3{2}
-  ==> `|res{1}.`3| = res{2}.`3 /\ res{1}.`1 = res{2}.`1 /\ res{1}.`2 = res{2}.`2 /\ 0 < t3_in = 0 < res{1}.`3 /\ (t3_in <> 0) = (res{1}.`3 <> 0)  ].
+  ==> `|res{1}.`3| = res{2}.`3 /\ res{1}.`1 = res{2}.`1 /\ res{1}.`2 = res{2}.`2  
+             /\ 0 < t3_in = 0 < res{1}.`3 /\ (t3_in <> 0) = (res{1}.`3 <> 0)  ].
 proc. simplify.
 while (={t1,t2,u,v} /\ `|t3{1}| = t3{2} /\  (t3_in <> 0) = (t3{1} <> 0) /\ 0 < t3_in = 0 < t3{1}).
 wp. skip. progress;smt(@Int @IntDiv). 
@@ -247,14 +248,7 @@ wp. skip. simplify.
 move => &hr.
 move => q.
 case (0 < t3{hr}).
-progress.
-smt.
-smt.
-smt.
-smt.
-smt.
-smt. 
-smt.
+progress;smt. smt. 
 wp. skip. progress. 
 skip. progress.
 qed.
@@ -303,7 +297,7 @@ qed.
  
 
 lemma main2_full_correctness &m u v : 0 < u => 0 < v => odd u =>
-    Pr[ ExtGCD.main2(u,v) @&m : (v * res.`2 %% u = res.`3 %% u) /\ (res.`3 = (gcd u v)) ] = 1%r.
+    Pr[ ExtGCD.main2(u,v) @&m : v * res.`2 %% u = res.`3 %% u /\ res.`3 = gcd u v ] = 1%r.
 progress.    
 byphoare (_: arg = (u,v) ==> _).
 phoare split 1%r 1%r 1%r.     smt().

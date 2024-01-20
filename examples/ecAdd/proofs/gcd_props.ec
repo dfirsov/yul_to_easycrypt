@@ -1,7 +1,5 @@
 require import Int IntDiv.
 
-
-
 lemma odd_even u v : odd u => odd v => !odd (u - v).
 proof. smt(@IntDiv). qed.
 

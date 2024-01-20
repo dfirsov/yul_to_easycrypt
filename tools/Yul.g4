@@ -1,4 +1,3 @@
-// Define a grammar called Yul
 grammar Yul;
 start : yul_object ;
 
@@ -6,7 +5,7 @@ yul_object : KW_OBJECT yul_string_literal '{' ( yul_code yul_object? ) '}' ;
 yul_code : KW_CODE yul_block ;
 yul_if : KW_IF yul_expression yul_block ;
 yul_switch : KW_SWITCH yul_expression ( yul_case+ yul_default? | yul_default ) ;
-yul_case : KW_CASE yul_literal yul_block ; // note: case only accepts literals, not expressions
+yul_case : KW_CASE yul_literal yul_block ; 
 yul_default : KW_DEFAULT yul_block ;
 yul_for_loop : KW_FOR yul_block yul_expression yul_block yul_block ;
 yul_break : KW_BREAK ;
@@ -15,7 +14,6 @@ yul_leave : KW_LEAVE ;
 yul_function_definition : KW_FUNCTION yul_identifier '(' yul_function_arg_list? ')' ( '->' yul_function_ret_list )? yul_block ;
 yul_variable_declaration : KW_LET yul_typed_identifier_list ( ':=' yul_expression )? ;
 
-// this two tell apart different matches in yul_function_definition
 yul_function_arg_list : yul_typed_identifier_list ;
 yul_function_ret_list : yul_typed_identifier_list ;
 yul_typed_identifier_list : yul_identifier ( ':' yul_type_name )? ( ',' yul_identifier ( ':' yul_type_name )? )* ;

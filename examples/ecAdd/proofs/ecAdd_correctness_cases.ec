@@ -158,7 +158,7 @@ lemma ecAdd_correct_5 x1_in y1_in x2_in y2_in :
          /\ !(x2_in = 0 /\ y2_in = 0)       
          /\ (x1_in = x2_in /\ y1_in = y2_in)){1}
          /\ !(x1_in = x2_in /\ (P - y1_in) %% P = y2){1}
-               ==> res{1} = ((add_x x1_in y1_in){1} %% P, (add_y x1_in y1_in){1} %% P) ].
+               ==> res{1} = ((add_diff_x x1_in y1_in){1} %% P, (add_diff_y x1_in y1_in){1} %% P) ].
 proc.             
 rcondf {1} 5. progress. inline*. wp. skip. progress. smt().
 rcondt  {1} 5. progress. inline*. wp. skip. progress. 
@@ -276,7 +276,7 @@ have ->: x3_raw * R %% P * inv R %% P = x3_raw %% P.
    have ->: (x3_raw * R  * (inv R)) = (x3_raw * (R  * (inv R))). smt().
    have ->: x3_raw * (R * inv R) %% P = x3_raw  * ((R * inv R) %% P )  %% P. smt(@Int @IntDiv).
    rewrite inv_ax_opp. smt. auto.
-    rewrite /add_x. simplify.
+    rewrite /add_diff_x. simplify.
 rewrite /x3_raw.
 rewrite /slope_raw.
 rewrite /x1_squared_raw.
@@ -290,7 +290,7 @@ have ->: ((slope_raw * (x2{1} - x3_raw) - y2{1}) * (inv R * R)) %% P
   = ((slope_raw * (x2{1} - x3_raw) - y2{1}) * ((inv R * R) %% P)) %% P. smt(@Int @IntDiv).
 rewrite inv_ax.  simplify. smt. simplify. auto.              
 congr. congr.
-rewrite /add_y /add_x. simplify.
+rewrite /add_diff_y /add_diff_x. simplify.
 rewrite /slope_raw.
 rewrite /x1_squared_raw.
 rewrite /x3_raw.
@@ -318,7 +318,7 @@ lemma ecAdd_correct_6 x1_in y1_in x2_in y2_in :
          /\ !(x2_in = 0 /\ y2_in = 0) 
          /\ !(x1_in = x2_in /\ y1_in = y2_in)
          /\ !(x1_in = x2_in /\ (P - y1_in) %% P = y2)){1}
-               ==> (res = (add_x' x1_in x2_in y1_in y2_in %% P, add_y' x1_in x2_in y1_in y2_in %% P)){1} ].
+               ==> (res = (add_eq_x x1_in x2_in y1_in y2_in %% P, add_eq_y x1_in x2_in y1_in y2_in %% P)){1} ].
 proc.             
 rcondf {1} 5. progress. inline*. wp. skip. progress. smt().
 rcondt {1} 5. progress. inline*. wp. skip. progress. 

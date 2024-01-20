@@ -4,30 +4,28 @@ require import Ext_gcd Gcd_props.
 
 
 module OptExtGcd = {
-
-  proc simplify_ts(t2:int,t3: int,u:int,v:int) = {
+  proc simplify_ts(t2:int,t3: int,u:int) = {
       while (!odd t3){
         if (!odd t2){
-          (t2,t3) <- (t2 %/2, t3 %/2);
+          (t2,t3) <- (t2 %/ 2, t3 %/ 2);
         }else{
-          (t2,t3) <- ((t2-u) %/2, t3 %/2);
+          (t2,t3) <- ((t2-u) %/ 2, t3 %/ 2);
         }
       }
       return (t2,t3);
   }
 
-  proc simplify_ts_pos(t2:int,t3: int,u:int,v:int) = {
+  proc simplify_ts_pos(t2:int,t3: int,u:int) = {
       while (!odd t3){
         if (!odd t2){
-          (t2,t3) <- (t2 %/2, t3 %/2);
+          (t2,t3) <- (t2 %/ 2, t3 %/ 2);
         }else{
-          (t2,t3) <- ((t2+u) %/2, t3 %/2);
+          (t2,t3) <- ((t2+u) %/ 2, t3 %/ 2);
         }
       }
       return (t2,t3);
   }
 
-  (* assumption: u odd *)
   proc main1(u : int, v : int) = {
     var u1,u2,u3,v1,v2,v3,t1,t2,t3;
 
@@ -114,13 +112,13 @@ module OptExtGcd = {
       (v2,v3) <- (1-u, v);
       (t2,t3) <- (-1, v);
 
-      (t2,t3) <@ simplify_ts(t2, v, u, v);
+      (t2,t3) <@ simplify_ts(t2, v, u);
       (v2, v3) <- (-u-t2, t3);
 
       (t2, t3) <- (u2-v2, `|u3-v3|);
 
       while (t3 <> 0){
-        (t2,t3) <@ simplify_ts(t2, t3, u, v);
+        (t2,t3) <@ simplify_ts(t2, t3, u);
         if (v3 < u3){
           (u2, u3) <- (t2, t3);
         }else{
@@ -141,13 +139,13 @@ module OptExtGcd = {
       (v2,v3) <- (1-u, v);
       (t2,t3) <- (-1, v);
 
-      (t2,t3) <@ simplify_ts(t2, v, u, v);
+      (t2,t3) <@ simplify_ts(t2, v, u);
       (v2, v3) <- (-u-t2, t3);
 
       (t2, t3) <- (u2-v2, `|u3-v3|);
 
       while (t3 <> 0){
-        (t2,t3) <@ simplify_ts(t2, t3, u, v);
+        (t2,t3) <@ simplify_ts(t2, t3, u);
         if (v3 < u3){
           (u2, u3) <- (t2, t3);
         }else{
@@ -173,13 +171,13 @@ module OptExtGcd = {
     (v2,v3) <- (u-1, v);
     (t2,t3) <- (1, v);
 
-    (t2,t3) <@ simplify_ts_pos(t2, v, u, v);
+    (t2,t3) <@ simplify_ts_pos(t2, v, u);
     (v2, v3) <- (u-t2, t3);
 
     (t2, t3) <- (-v2, `|u3-v3|);
 
     while (t3 <> 0){
-      (t2,t3) <@ simplify_ts_pos(t2, t3, u, v);
+      (t2,t3) <@ simplify_ts_pos(t2, t3, u);
       if (v3 < u3){
         (u2, u3) <- (t2, t3);
       }else{
@@ -205,13 +203,13 @@ module OptExtGcd = {
       (v2,v3) <- (u-1, v);
       (t2,t3) <- (1, v);
 
-      (t2,t3) <@ simplify_ts_pos(t2, v, u, v);
+      (t2,t3) <@ simplify_ts_pos(t2, v, u);
       (v2, v3) <- (u-t2, t3);
 
       (t2, t3) <- (u-v2, `|u3-v3|);
 
       while (t3 <> 0){
-        (t2,t3) <@ simplify_ts_pos(t2, t3, u, v);
+        (t2,t3) <@ simplify_ts_pos(t2, t3, u);
         if (v3 < u3){
           (u2, u3) <- (t2, t3);
         }else{
@@ -243,7 +241,7 @@ module OptExtGcd = {
       (v2,v3) <- (u-1, v);
       (t2,t3) <- (1, v);
 
-      (t2,t3) <@ simplify_ts_pos(t2, v, u, v);
+      (t2,t3) <@ simplify_ts_pos(t2, v, u);
       (v2, v3) <- (u-t2, t3);
 
       if (v3 < u3){
@@ -254,7 +252,7 @@ module OptExtGcd = {
       t2 <- u-v2;
 
       while (t3 <> 0){
-        (t2,t3) <@ simplify_ts_pos(t2, t3, u, v);
+        (t2,t3) <@ simplify_ts_pos(t2, t3, u);
 
         if (v3 < u3){
           (u2, u3) <- (t2, t3);
@@ -286,7 +284,7 @@ module OptExtGcd = {
       (v2,v3) <- (u-r, v);
       (t2,t3) <- (r, v);
 
-      (t2,t3) <@ simplify_ts_pos(t2, v, u, v);
+      (t2,t3) <@ simplify_ts_pos(t2, v, u);
       (v2, v3) <- (u-t2, t3);
 
       if (v3 < u3){
@@ -297,7 +295,7 @@ module OptExtGcd = {
       t2 <- u-v2;
 
       while (t3 <> 0){
-        (t2,t3) <@ simplify_ts_pos(t2, t3, u, v);
+        (t2,t3) <@ simplify_ts_pos(t2, t3, u);
 
         if (v3 < u3){
           (u2, u3) <- (t2, t3);
@@ -328,7 +326,7 @@ module OptExtGcd = {
       (v2,v3) <- (r, v);
       (t2,t3) <- (r, v);
 
-      (t2,t3) <@ simplify_ts_pos(t2, v, u, v);
+      (t2,t3) <@ simplify_ts_pos(t2, v, u);
       (v2, v3) <- (t2, t3);
 
       if (v3 < u3){
@@ -339,7 +337,7 @@ module OptExtGcd = {
       t2 <- v2;
 
       while (t3 <> 0){
-        (t2,t3) <@ simplify_ts_pos(t2, t3, u, v);
+        (t2,t3) <@ simplify_ts_pos(t2, t3, u);
 
         if (v3 < u3){
           (u2, u3) <- (t2, t3);
@@ -372,21 +370,17 @@ lemma opt_10 u_in r_in : equiv[ OptExtGcd.main10 ~ OptExtGcd.main10
 proof. proc. simplify.
 seq  7 7 : (#pre /\ ={u2,v2,t2,u3,v3,t3} /\ 0 <= u2{1} <= u_in /\ 0 <= v2{1} <= u_in /\ 0 <= t2{1} <= u_in).
 wp. inline*. wp.
-while (={t20,t30,u0} /\ 0 < t20{1} <= u_in /\ u0{1} = u_in). wp. skip. progress. smt. smt. smt. smt.
-wp. skip. progress. smt. smt. smt. smt. smt. smt. smt.
+while (={t20,t30,u0} /\ 0 < t20{1} <= u_in /\ u0{1} = u_in). wp. skip. progress;smt.
+wp. skip. progress;smt.
 while (#pre).
 seq 1 1 : (#pre). wp. inline*. wp.
-while (={t20,t30,u0} /\ 0 <= t20{1} <= u_in /\ u0{1} = u_in). wp. skip. progress. smt. smt. smt. smt. wp.
-wp. skip. progress. smt.  smt. 
-wp. skip. progress. smt. smt. smt. smt. smt. smt. smt. smt. smt. smt.
-smt. smt. smt. smt. smt. smt. skip.
-progress. smt.
-smt.
+while (={t20,t30,u0} /\ 0 <= t20{1} <= u_in /\ u0{1} = u_in). wp. skip. progress;smt. wp.
+wp. skip. progress;smt.
+wp. skip. progress;smt. skip.
+progress;smt.
 qed.
 
-(* lemma modular_inversion_correctness' &m u v r: *)
-(*   2 < u => 0 < v => odd u => odd r => gcd u v = 1 => *)
-(*     Pr[ OptExtGcd.main10(u, v, r)@&m :  (res.`1) %% u = (inv u v) * r %% u ] = 1%r. admitted. *)
+
      
 lemma opt_9 u_in r_in : equiv[ OptExtGcd.main9 ~ OptExtGcd.main10
     : ={arg} /\  r_in = arg{2}.`3  /\ u{1} = u_in /\ odd u_in /\ odd r_in /\ 2 < u_in ==> ={res} ].
@@ -402,11 +396,8 @@ seq 1 1 : (={u,v,r,u2,u3,v3,t2,t3} /\ r_in = r{1} /\ v2{1}  = (u{2} -v2{2})).
 call (_:true). sim. skip. auto.
 seq 1 1 : (={u,v,r,u2,u3,v3,t2,t3} /\ r_in = r{1} /\ v2{1}  = (u{2} -v2{2})).
 wp. skip. progress. 
-wp. skip. progress.    
-smt(@Int @IntDiv). smt(@Int @IntDiv). smt(@Int @IntDiv).
-    smt(@Int @IntDiv). smt(@Int @IntDiv). smt(@Int @IntDiv).
-    smt(@Int @IntDiv). smt(@Int @IntDiv).
-skip. smt(@Int @IntDiv).
+wp. skip. progress;smt(@Int @IntDiv).
+skip. auto.
 qed.    
 
     
@@ -468,9 +459,9 @@ qed.
 
 lemma opt_8_eq u_in r  : 
      equiv [ OptExtGcd.simplify_ts_pos ~ OptExtGcd.simplify_ts_pos :  odd u{1} /\ 2 < u{1} /\
-      r * t2{1} %% u{1} = t2{2} %% u{1} /\ ={t3,u,v} /\ u{1} = u_in /\ odd r ==> r * res{1}.`1 %% u_in = res{2}.`1 %% u_in /\ res{1}.`2 = res{2}.`2 ].
+      r * t2{1} %% u{1} = t2{2} %% u{1} /\ ={t3,u} /\ u{1} = u_in /\ odd r ==> r * res{1}.`1 %% u_in = res{2}.`1 %% u_in /\ res{1}.`2 = res{2}.`2 ].
 proc.  simplify.
-while (r * t2{1} %% u{1} = t2{2} %% u{1} /\ ={t3, u, v} /\ odd u{1} /\ u{1} = u_in /\ 2 < u{1} /\ odd r{1}).
+while (r * t2{1} %% u{1} = t2{2} %% u{1} /\ ={t3, u} /\ odd u{1} /\ u{1} = u_in /\ 2 < u{1} /\ odd r{1}).
 wp. skip. progress.
 apply opt_6_eq_aux. auto.  auto.
     have ->: 2 * (r * (t2{1} %/ 2)) = r * t2{1}.
@@ -509,9 +500,7 @@ rewrite opt_8_aux. auto.
 have ->: 2 * (r * (t2{1} + u{2}) ) %/2 = (r * (t2{1} + u{2}) ). smt(@Int @IntDiv).
 have ->: r * (t2{1} + u{2}) = r * t2{1} + r * u{2}. smt.
 have ->: (r * t2{1} + r * u{2}) %% u{2} = r * t2{1} %% u{2}.
-clear H1 H2 H3 H4 H5 H6.    
-smt.
-smt.
+clear H1 H2 H3 H4 H5 H6. smt. smt.
 skip.
 progress.
 qed.
@@ -689,9 +678,9 @@ qed.
 
 lemma opt_6_eq u_in :
      equiv [ OptExtGcd.simplify_ts_pos ~ OptExtGcd.simplify_ts_pos :  odd u{1} /\ 2 < u{1} /\
-      t2{1} %% u{1} = t2{2} %% u{1} /\ ={t3,u,v} /\ u{1} = u_in ==> res{1}.`1 %% u_in = res{2}.`1 %% u_in /\ res{1}.`2 = res{2}.`2 ].
+      t2{1} %% u{1} = t2{2} %% u{1} /\ ={t3,u} /\ u{1} = u_in ==> res{1}.`1 %% u_in = res{2}.`1 %% u_in /\ res{1}.`2 = res{2}.`2 ].
 proc. simplify.
-while (t2{1} %% u{1} = t2{2} %% u{1} /\ ={t3, u, v} /\ odd u{1} /\ u{1} = u_in /\ 2 < u{1}).
+while (t2{1} %% u{1} = t2{2} %% u{1} /\ ={t3, u} /\ odd u{1} /\ u{1} = u_in /\ 2 < u{1}).
 wp. skip. progress.
 apply opt_6_eq_aux. auto.  auto.
     have ->: 2 * (t2{1} %/ 2) = t2{1}. smt(@Int @IntDiv).
@@ -821,9 +810,9 @@ qed.
 
 lemma opt_5_eq :
      equiv [ OptExtGcd.simplify_ts ~ OptExtGcd.simplify_ts_pos :  odd u{1} /\
-      t2{1} = -t2{2} /\ ={t3,u,v} ==> res{1}.`1 = -res{2}.`1 /\ res{1}.`2 = res{2}.`2 ].
+      t2{1} = -t2{2} /\ ={t3,u} ==> res{1}.`1 = -res{2}.`1 /\ res{1}.`2 = res{2}.`2 ].
 proc. simplify.
-while ( t2{1} = -t2{2} /\ ={t3, u, v} /\ odd u{1}).
+while ( t2{1} = -t2{2} /\ ={t3, u} /\ odd u{1}).
 wp. skip. progress. smt(@Int). smt(@Int). smt.
 have ->: (-t2{2}) - u{2} =  - ((t2{2}) + u{2}). smt(@Int).
 pose x := t2{2} + u{2}.
@@ -846,7 +835,7 @@ seq 1 1 : (={u,v,u3,v3,t3} /\ t2{1} = -t2{2} /\ u2{1} = -u2{2} /\ v2{1} = -v2{2}
 wp. skip. progress.  simplify. 
 while (={u,v,u3,v3,t3} /\ t2{1} = -t2{2} /\ u2{1} = -u2{2} /\ v2{1} = -v2{2} /\ 0 < u{1} /\ 0 < v{1} /\ odd u{1} ).
 seq 1 1 : ((={u,v,u3,v3,t3} /\ t2{1} = -t2{2} /\ u2{1} = -u2{2} /\ v2{1} = -v2{2} /\ 0 < u{1} /\ 0 < v{1} /\ odd u{1} )). call opt_5_eq. simplify. skip. progress. 
-wp. skip. progress. smt. smt. smt. smt. smt. smt. simplify.
+wp. skip. progress;smt. simplify.
 skip. progress.
 qed.     
      
@@ -891,9 +880,8 @@ while (={u,v,u1,u2,u3,v1,v2,v3,t1,t2} /\ t3{1} = u3{1} - v3{1} /\ `|t3{1}| = t3{
 wp.
 exists* t3{1}. elim*. progress.
 call (gcd_t_simp_eq2 t3_L). simplify.
-skip. progress. 
-smt. smt. smt.  smt. smt. smt. smt. smt. smt. smt. smt. smt. smt. smt. 
-skip. progress. smt. smt.
+skip. progress;smt.
+skip. progress;smt.
 qed.
 
 
@@ -904,10 +892,10 @@ proc.
 wp. simplify. sp.
 while (={t2,t3,u2,u3,v2,v3,u,v}). wp.
 inline*. sp. wp. 
-while (={t20,t30,u0,v0}).
+while (={t20,t30,u0}).
 wp. skip. progress. skip. progress.
 wp. inline*. sp. wp. 
-while (={t20,t30,u0,v0}).
+while (={t20,t30,u0}).
 wp. skip. progress. skip. progress.
 qed.
 
@@ -918,10 +906,10 @@ proc.
 wp. simplify. sp.
 while (={t2,t3,u2,u3,v2,v3,u,v}). wp.
 inline*. sp. wp. 
-while (={t20,t30,u0,v0}).
+while (={t20,t30,u0}).
 wp. skip. progress. skip. progress;smt.
 wp. inline*. sp. wp. 
-while (={t20,t30,u0,v0}).
+while (={t20,t30,u0}).
 wp. skip. progress. skip. progress.
 qed.
 
@@ -1061,7 +1049,8 @@ qed.
 
 lemma modular_inversion_correctness'' &m u v r:
   2 < u => 0 < v => odd u => odd r => gcd u v = 1 => 0 < r < u =>
-    Pr[ OptExtGcd.main10(u, v, r)@&m :  (res.`1) %% u = (invm v u) * r %% u /\ 0 <= res.`1 <= u ] = Pr[ OptExtGcd.main10(u, v, r)@&m :  (res.`1) %% u = (invm v u) * r %% u ].
+    Pr[ OptExtGcd.main10(u, v, r)@&m :  (res.`1) %% u = (invm v u) * r %% u /\ 0 <= res.`1 <= u ] 
+       = Pr[ OptExtGcd.main10(u, v, r)@&m :  (res.`1) %% u = (invm v u) * r %% u ].
 progress. byequiv.
 conseq (opt_10 u r).
 progress. 
