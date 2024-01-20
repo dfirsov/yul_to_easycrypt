@@ -4,7 +4,7 @@ require import Gcd Gcd_props.
 require import AlmostYUL.
 require import Montgomery_arith.
 require import EcAdd_spec.
-require import ExtraFacts.
+require import ExtraFacts Parameters.
      
 
 
@@ -12,16 +12,16 @@ require import ExtraFacts.
 lemma nosmt mul_inj (a b r : int) : coprime r P
     => a * r %% P = b * r %% P => a %% P = b %% P.
 move => coprime_h eq.
- have : a * r * (inv P r) %% P = b * r * (inv P r) %% P.
-  have ->: (a * r) * (inv P r) %% P = (a * r %% P)  * (inv P r) %% P.
+ have : a * r * (inv r) %% P = b * r * (inv r) %% P.
+  have ->: (a * r) * (inv r) %% P = (a * r %% P)  * (inv r) %% P.
   smt(@IntDiv).
   rewrite eq.
   smt(@IntDiv).
-  have ->: a * r * inv P r = a * (r * inv P r). smt(@IntDiv).
-  have ->: b * r * inv P r = b * (r * inv P r). smt(@IntDiv).
-  have ->: a * (r * inv P r) %% P = a * (r * inv P r %% P) %% P.
+  have ->: a * r * inv r = a * (r * inv r). smt(@IntDiv).
+  have ->: b * r * inv r = b * (r * inv r). smt(@IntDiv).
+  have ->: a * (r * inv r) %% P = a * (r * inv r %% P) %% P.
   smt(@IntDiv).
-  have ->: b * (r * inv P r) %% P = b * (r * inv P r %% P) %% P.
+  have ->: b * (r * inv r) %% P = b * (r * inv r %% P) %% P.
   smt(@IntDiv).
   rewrite inv_ax_opp. smt(@IntDiv).
   simplify.
@@ -38,10 +38,10 @@ proof. smt(mul_inj). qed.
 lemma ecAdd_safety_1 x1_in y1_in x2_in y2_in :  0 <= x1_in /\ 0 <= y1_in /\ 0 <= x2_in /\ 0 <= y2_in =>
  phoare[ AlmostYul.main : 
          arg = (x1_in,y1_in,x2_in,y2_in) /\
-      (x1_in < AlmostYUL.N
-         /\ y1_in < AlmostYUL.N
-         /\ x2_in < AlmostYUL.N
-         /\ y2_in < AlmostYUL.N) /\
+      (x1_in < P
+         /\ y1_in < P
+         /\ x2_in < P
+         /\ y2_in < P) /\
          (((!pIsInfinity (x1_in, y1_in)) /\ (!pointIsInCurve x1_in y1_in)) \/
          ((!pIsInfinity (x2_in, y2_in)) /\ (!pointIsInCurve x2_in y2_in)))      
                  ==> true ] = 0%r.
@@ -61,7 +61,7 @@ seq 11 : (false).
 rcondf 6. inline*. wp. skip. progress. smt.
 seq 7 : (#pre /\ m_x2 = x2 * R %% P /\ m_y2 = y2 * R %% P).
 ecall (into_m_h y2_in).
-ecall (into_m_h x2_in).  inline*. wp. skip. progress.   smt(). smt(). smt(). smt().
+ecall (into_m_h x2_in).  inline*. wp. skip. progress.   smt(). smt(). 
 rcondt 3. inline 2. wp.
 ecall (pointIsInCurve_m_h x2 y2).  skip. progress.
 rewrite /as_bool.
@@ -131,8 +131,8 @@ apply mul_inj_contra_pos. smt. smt.
 inline 3. while (true). auto. auto. exfalso.
 rcondt 1. auto. simplify.
 seq 4 : ((((((((((
-           (x1_in < AlmostYUL.N /\
-            y1_in < AlmostYUL.N /\ x2_in < AlmostYUL.N /\ y2_in < AlmostYUL.N) /\
+           (x1_in < P /\
+            y1_in < P /\ x2_in < P /\ y2_in < P) /\
            (! pIsInfinity (x1_in, y1_in) /\ ! pointIsInCurve x1_in y1_in \/
             ! pIsInfinity (x2_in, y2_in) /\ ! pointIsInCurve x2_in y2_in)) /\
           ret_bool = false /\
@@ -149,7 +149,7 @@ seq 4 : ((((((((((
 ecall (into_m_h y2_in).
 ecall (into_m_h x2_in).
 ecall (into_m_h y1_in).
-ecall (into_m_h x1_in). skip.  progress. smt(). smt(). smt(). smt(). smt(). smt(). smt(). smt(). 
+ecall (into_m_h x1_in). skip.  progress. smt(). smt(). smt(). smt(). 
 seq 6 : (false).
 rcondt 6.
 inline 5. inline 4. wp.  
@@ -177,10 +177,10 @@ qed.
 lemma ecAdd_safety_2 x1_in y1_in x2_in y2_in :  
  phoare[ AlmostYul.main : 
          arg = (x1_in,y1_in,x2_in,y2_in)/\
-         !(x1_in < AlmostYUL.N
-         /\ y1_in < AlmostYUL.N
-         /\ x2_in < AlmostYUL.N
-         /\ y2_in < AlmostYUL.N)
+         !(x1_in < P
+         /\ y1_in < P
+         /\ x2_in < P
+         /\ y2_in < P)
                  ==> true ] = 0%r.
 hoare. simplify.
 proc.

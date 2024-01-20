@@ -6,8 +6,8 @@ require import Ext_gcd Gcd_props.
 module OptExtGcd = {
 
   proc simplify_ts(t2:int,t3: int,u:int,v:int) = {
-      while (even t3){
-        if (even t2){
+      while (!odd t3){
+        if (!odd t2){
           (t2,t3) <- (t2 %/2, t3 %/2);
         }else{
           (t2,t3) <- ((t2-u) %/2, t3 %/2);
@@ -17,8 +17,8 @@ module OptExtGcd = {
   }
 
   proc simplify_ts_pos(t2:int,t3: int,u:int,v:int) = {
-      while (even t3){
-        if (even t2){
+      while (!odd t3){
+        if (!odd t2){
           (t2,t3) <- (t2 %/2, t3 %/2);
         }else{
           (t2,t3) <- ((t2+u) %/2, t3 %/2);
@@ -433,29 +433,29 @@ progress.
 have o : m <= 2 * (y' %% m). smt(). clear H1.
 have o2 :  2 * y' %% m =  (2 * (y' %% m) - m) . smt (@Int @IntDiv).
 have : odd (2 * (y' %% m) - m). smt.
-have : even  (2 * (y' %% m) - m). rewrite - o2 g2 -g3.
+have : !odd  (2 * (y' %% m) - m). rewrite - o2 g2 -g3.
  have ->: 2 * (x' %% m) %% m = 2 * (x' %% m). smt.
 smt.
-progress. smt.
+progress. 
 case (( 2* (y' %% m)) < m).
 progress.
 have o : m <= 2 * (x' %% m). smt(). 
 have o2 :  2 * x' %% m =  (2 * (x' %% m) - m) . smt (@Int @IntDiv).
 have : odd (2 * (x' %% m) - m). smt.
-have : even  (2 * (x' %% m) - m).  rewrite  - o2  g1 g3.
+have : !odd  (2 * (x' %% m) - m).  rewrite  - o2  g1 g3.
  have ->: 2 * (y' %% m) %% m = 2 * (y' %% m). timeout 10. smt.
 smt.
 progress. smt.
-progress.
-have o1 : m <= 2 * (x' %% m). smt(). 
-have o2 : m <= 2 * (y' %% m). smt(). 
-have o3 :  2 * x' %% m =  (2 * (x' %% m) - m) . smt (@Int @IntDiv).
-have o4 :  2 * y' %% m =  (2 * (y' %% m) - m) . smt (@Int @IntDiv).
-smt.
+(* progress. *)
+(* have o1 : m <= 2 * (x' %% m). smt().  *)
+(* have o2 : m <= 2 * (y' %% m). smt().  *)
+(* have o3 :  2 * x' %% m =  (2 * (x' %% m) - m) . smt (@Int @IntDiv). *)
+(* have o4 :  2 * y' %% m =  (2 * (y' %% m) - m) . smt (@Int @IntDiv). *)
+(* smt. *)
 qed.
 
 
-lemma nosmt opt_8_aux (a b : int) : even b =>
+lemma nosmt opt_8_aux (a b : int) : !odd b =>
      a * (b %/ 2) = (a * b) %/2.
 progress.    
 have <-: 2 * (b %/ 2) = b. smt (@Int @IntDiv).
@@ -474,7 +474,7 @@ while (r * t2{1} %% u{1} = t2{2} %% u{1} /\ ={t3, u, v} /\ odd u{1} /\ u{1} = u_
 wp. skip. progress.
 apply opt_6_eq_aux. auto.  auto.
     have ->: 2 * (r * (t2{1} %/ 2)) = r * t2{1}.
-       have q : even (r * t2{1} ). smt.
+       have q : !odd (r * t2{1} ). smt.
       have -> : (r * (t2{1} %/ 2))  = (r * t2{1}) %/ 2. smt (opt_8_aux).
     smt (opt_8_aux).   
     have ->: 2 * (t2{2} %/ 2) = t2{2}. smt (opt_8_aux). rewrite - H. auto.
@@ -482,7 +482,7 @@ apply opt_6_eq_aux. auto. auto.
 have ->: 2 * (r * ((t2{1} + u{2}) %/ 2)) = (r * (t2{1} + u{2}) ).
     rewrite opt_8_aux. smt.
     rewrite opt_8_aux.
-    have f : even (t2{1} + u{2}). smt .
+    have f : !odd (t2{1} + u{2}). smt .
     smt.
 smt.    
 have ->: r * (t2{1} + u{2}) %% u{2} = r * t2{1} %% u{2}.
@@ -501,10 +501,10 @@ smt(@Int @IntDiv).
 apply opt_6_eq_aux. auto. auto.    
 rewrite opt_8_aux. auto. smt.
 rewrite opt_8_aux. auto.
-  have f : even (t2{1} + u{2}). smt.
+  have f : !odd (t2{1} + u{2}). smt.
     smt.    
     have ->: 2 * ((t2{2} + u{2}) %/ 2) = (t2{2} + u{2}).
-      have f : even (t2{2} + u{2}). smt.
+      have f : !odd (t2{2} + u{2}). smt.
     smt.
 have ->: 2 * (r * (t2{1} + u{2}) ) %/2 = (r * (t2{1} + u{2}) ). smt(@Int @IntDiv).
 have ->: r * (t2{1} + u{2}) = r * t2{1} + r * u{2}. smt.
@@ -1016,37 +1016,40 @@ auto. smt(). auto. auto.
 smt(@Distr).
 qed.    
 
+
 lemma opt_main9_full_correctness2 &m u v r: 2 < u => 0 < v => odd u => odd r =>
     gcd u v = 1 =>
-    1%r = Pr[ OptExtGcd.main9(u,v,r) @&m :  (res.`1) %% u =  (inv u v) * r %% u ].
+    1%r = Pr[ OptExtGcd.main9(u,v,r) @&m :  (res.`1) %% u =  (invm v u) * r %% u ].
 progress.
-have f : 1%r <= Pr[ OptExtGcd.main9(u,v,r) @&m :  (res.`1) %% u =  (inv u v) * r %% u ].
+have f : 1%r <= Pr[ OptExtGcd.main9(u,v,r) @&m :  (res.`1) %% u =  (invm v u) * r %% u ].
 rewrite  (opt_main9_full_correctness &m u v r);auto.
 rewrite Pr[mu_sub]. progress.
-have : (inv u v) %% u * (v * res{hr}.`1 %% u) %% u = (inv u v) * (r * gcd u v) %% u.
+have : (invm v u) %% u * (v * res{hr}.`1 %% u) %% u = (invm v u) * (r * gcd u v) %% u.
     smt (@Int @IntDiv).
 rewrite H3.
 have ->: (v * res{hr}.`1 %% u) = (v %% u * res{hr}.`1) %% u.
     smt (@Int @IntDiv).
-have ->: (inv u v %% u) * (v %% u * res{hr}.`1 %% u) %% u
-     = (inv u v) * (v %% u * res{hr}.`1) %% u.
+have ->: (invm v u %% u) * (v %% u * res{hr}.`1 %% u) %% u
+     = (invm v u) * (v %% u * res{hr}.`1) %% u.
     smt (@Int @IntDiv).
-have ->: (inv u v) * (v %% u * res{hr}.`1) %% u
-      = ((inv u v) * (v %% u) * res{hr}.`1) %% u.
+have ->: (invm v u) * (v %% u * res{hr}.`1) %% u
+      = ((invm v u) * (v %% u) * res{hr}.`1) %% u.
     smt (@Int @IntDiv).
-have ->: inv u v * (v %% u) * res{hr}.`1 %% u
-    = (inv u v * (v %% u) %% u) * res{hr}.`1 %% u.
+have ->: invm v u * (v %% u) * res{hr}.`1 %% u
+    = (invm v u * (v %% u) %% u) * res{hr}.`1 %% u.
     smt (@Int @IntDiv).
-have ->: inv u v * (v %% u) %% u = inv u v * v %% u.
+have ->: invm v u * (v %% u) %% u = invm v u * v %% u.
     smt (@Int @IntDiv).
-    rewrite inv_ax. auto. smt(). auto.
+    simplify.
+    have ->: invm v u * v = v * invm v u. smt().
+    rewrite invmP. smt(). smt. auto. auto.
 smt(@Distr).
 qed.    
 
 
 lemma modular_inversion_correctness' &m u v r:
   2 < u => 0 < v => odd u => odd r => gcd u v = 1 =>
-    Pr[ OptExtGcd.main10(u, v, r)@&m :  (res.`1) %% u = (inv u v) * r %% u ] = 1%r.
+    Pr[ OptExtGcd.main10(u, v, r)@&m :  (res.`1) %% u = (invm v u) * r %% u ] = 1%r.
 progress.    
 rewrite (opt_main9_full_correctness2 &m u v r);auto.
 byequiv.
@@ -1058,7 +1061,7 @@ qed.
 
 lemma modular_inversion_correctness'' &m u v r:
   2 < u => 0 < v => odd u => odd r => gcd u v = 1 => 0 < r < u =>
-    Pr[ OptExtGcd.main10(u, v, r)@&m :  (res.`1) %% u = (inv u v) * r %% u /\ 0 <= res.`1 <= u ] = Pr[ OptExtGcd.main10(u, v, r)@&m :  (res.`1) %% u = (inv u v) * r %% u ].
+    Pr[ OptExtGcd.main10(u, v, r)@&m :  (res.`1) %% u = (invm v u) * r %% u /\ 0 <= res.`1 <= u ] = Pr[ OptExtGcd.main10(u, v, r)@&m :  (res.`1) %% u = (invm v u) * r %% u ].
 progress. byequiv.
 conseq (opt_10 u r).
 progress. 
@@ -1068,28 +1071,28 @@ qed.
 
 lemma modular_inversion_correctness''' &m u v r:
   2 < u => 0 < v => odd u => odd r => gcd u v = 1 => 0 < r < u =>
-    Pr[ OptExtGcd.main10(u, v, r)@&m :  res.`1 = (inv u v) * r %% u ] >= 1%r.
+    Pr[ OptExtGcd.main10(u, v, r)@&m :  res.`1 = (invm v u) * r %% u ] >= 1%r.
 progress. rewrite - (modular_inversion_correctness' &m u v r _ _ _ _ _);auto.
 rewrite - (modular_inversion_correctness'' &m u v r _ _ _ _ _);auto.    
 rewrite Pr[mu_sub].
 progress.
 case (res{hr}.`1 = u).
 progress.
-have : inv res{hr}.`1 v * r %% res{hr}.`1 = 0. smt.
+have : invm v res{hr}.`1 * r %% res{hr}.`1 = 0. smt.
 progress.
 have : false. 
 have : r %% res{hr}.`1 = 0.
-     have <- : (v %% res{hr}.`1) * (inv res{hr}.`1 v * r %% res{hr}.`1) =  0.
+     have <- : (v %% res{hr}.`1) * (invm v res{hr}.`1  * r %% res{hr}.`1) =  0.
     smt.
-    have ->: v %% res{hr}.`1 * (inv res{hr}.`1 v * r %% res{hr}.`1) 
-     = v %% res{hr}.`1 * (inv res{hr}.`1 v * r %% res{hr}.`1) %% res{hr}.`1. smt.
-    have ->: v %% res{hr}.`1 * (inv res{hr}.`1 v * r %% res{hr}.`1) %% res{hr}.`1
-     = v * (inv res{hr}.`1 v * r ) %% res{hr}.`1.
+    have ->: v %% res{hr}.`1 * (invm v res{hr}.`1  * r %% res{hr}.`1) 
+     = v %% res{hr}.`1 * (invm v res{hr}.`1 * r %% res{hr}.`1) %% res{hr}.`1. smt.
+    have ->: v %% res{hr}.`1 * (invm v res{hr}.`1  * r %% res{hr}.`1) %% res{hr}.`1
+     = v * (invm v res{hr}.`1  * r ) %% res{hr}.`1.
       smt(@Int @IntDiv).
-    have ->:  v * (inv res{hr}.`1 v * r ) = (v * inv res{hr}.`1 v) * r. smt.
-    have ->: v * inv res{hr}.`1 v * r %% res{hr}.`1 = (inv res{hr}.`1 v * v %% res{hr}.`1) * r %% res{hr}.`1.
+    have ->:  v * (invm v res{hr}.`1  * r ) = (v * invm v res{hr}.`1) * r. smt.
+    have ->: v * invm v res{hr}.`1 * r %% res{hr}.`1 = (invm v res{hr}.`1 * v %% res{hr}.`1) * r %% res{hr}.`1.
       smt(@Int @IntDiv).
-     have ->: (inv res{hr}.`1 v * v %% res{hr}.`1) = 1. apply inv_ax. auto. auto. smt. smt().  
+     have ->: (invm v res{hr}.`1 * v %% res{hr}.`1) = 1. smt(invmP @Int @IntDiv). auto. auto. smt. smt().  
 progress.
 have : res{hr}.`1 < u. smt.
     smt.
@@ -1099,10 +1102,10 @@ qed.
 require import Distr.
 lemma modular_inversion_correctness  u v r:
   2 < u => 0 < v => odd u => odd r => gcd u v = 1 => 0 < r < u =>
-    phoare[ OptExtGcd.main10 :  arg = (u, v, r) ==> res.`1 = (inv u v) * r %% u ] = 1%r.
+    phoare[ OptExtGcd.main10 :  arg = (u, v, r) ==> res.`1 = (invm v u) * r %% u ] = 1%r.
 progress.
 bypr. progress.
-  have : Pr[OptExtGcd.main10(u{m}, v{m}, r{m}) @ &m : res.`1 = inv u v * r %% u] >= 1%r.
+  have : Pr[OptExtGcd.main10(u{m}, v{m}, r{m}) @ &m : res.`1 = invm v u * r %% u] >= 1%r.
      apply (modular_inversion_correctness''' &m u v r);auto.
 smt(@Distr).    
 qed.

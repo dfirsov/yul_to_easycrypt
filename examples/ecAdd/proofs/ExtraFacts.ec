@@ -57,3 +57,30 @@ have o1 : k = 1. smt.
 have : P = y1 + y2. smt.
 smt.
 qed.
+
+
+
+(* lemma nosmt mul_inj (a b r P : int) : coprime r P => 1 < P  *)
+(*     => a * r %% P = b * r %% P => a %% P = b %% P. *)
+(* move => coprime_h posP eq. *)
+(*  have : a * r * (invm r P) %% P = b * r * (invm r P) %% P. *)
+(*   have ->: (a * r) * (invm r P) %% P = (a * r %% P)  * (invm r P) %% P. *)
+(*   smt(@IntDiv). *)
+(*   rewrite eq. *)
+(*   smt(@IntDiv). *)
+(*   have ->: a * r * invm r P = a * (r * invm r P). smt(@IntDiv). *)
+(*   have ->: b * r * invm r P = b * (r * invm r P). smt(@IntDiv). *)
+(*   have ->: a * (r * invm r P) %% P = a * (r * invm r P %% P) %% P. *)
+(*   smt(@IntDiv). *)
+(*   have ->: b * (r * invm r P) %% P = b * (r * invm r P %% P) %% P. *)
+(*   smt(@IntDiv). *)
+(*   rewrite invmP. auto. auto. rewrite /coprime. smt(@IntDiv).  *)
+(*   simplify. *)
+(*   auto. *)
+(* qed. *)
+
+(* lemma nosmt mul_inj_contra_pos (a b r P : int) : coprime r P => 1 < P  *)
+(*   => a %% P <> b %% P =>  a * r %% P <> b * r %% P. *)
+(* proof. smt(mul_inj). qed. *)
+
+

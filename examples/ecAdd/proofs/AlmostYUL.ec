@@ -1,7 +1,7 @@
-require import AllCore Int IntDiv Gcd_props.
+require import AllCore Int IntDiv.
 
-op R2_MOD_P : int.
-op R, N, N' : int.
+require import Parameters.
+
 
 op getHighestHalfOfMultiplication (a b : int) : int = (a * b) %/ R.
 op as_bool (b : bool) = b.
@@ -37,7 +37,7 @@ module AlmostYul = {
    }
 
   proc isOnFieldOrder(coordinate : int) : bool = {
-      return coordinate < N;
+      return coordinate < P;
   }
 
 
@@ -62,7 +62,7 @@ module AlmostYul = {
 
   proc outOfMontgomeryForm(m : int) : int = {
       var ret;
-      ret <@ _REDC(m, 0, R, N, N');
+      ret <@ _REDC(m, 0, R, P, N');
       return ret;
   } 
 
@@ -70,21 +70,21 @@ module AlmostYul = {
       var ret, hi, lo;
       hi <- getHighestHalfOfMultiplication a R2_MOD_P;
       lo <- (a * R2_MOD_P) %% R;
-      ret <@ _REDC(lo, hi, R, N, N');    
+      ret <@ _REDC(lo, hi, R, P, N');    
       return ret;
   }
 
   proc montgomeryAdd(augend : int, addend : int) : int = {
     var ret;
     ret <- (augend + addend) %% R;
-    ret <- if N <= ret then (ret - N) %% R else ret;
+    ret <- if P <= ret then (ret - P) %% R else ret;
     return ret;
   }
 
 
   proc montgomerySub(minuend : int, subtrahend : int) : int = {
       var ret;
-      ret <@ montgomeryAdd(minuend, (N - subtrahend) %% R);
+      ret <@ montgomeryAdd(minuend, (P - subtrahend) %% R);
       return ret;
   }
 
@@ -93,15 +93,15 @@ module AlmostYul = {
     
     higherHalfOfProduct <- getHighestHalfOfMultiplication multiplicand multiplier;
     lowestHalfOfProduct <- (multiplicand * multiplier) %% R;
-    ret <@ _REDC(lowestHalfOfProduct, higherHalfOfProduct, R, N, N');
+    ret <@ _REDC(lowestHalfOfProduct, higherHalfOfProduct, R, P, N');
     return ret;
   }
 
 
 
   proc simplify_ts_pos(t2:int,t3: int,u:int) = {
-      while (even t3){
-        if (even t2){
+      while (!odd t3){
+        if (!odd t2){
           (t2,t3) <- (t2 %/2, t3 %/2);
         }else{
           (t2,t3) <- ((t2+u) %% R %/2, t3 %/2);
@@ -157,7 +157,7 @@ module AlmostYul = {
 
   proc montgomeryModularInverse(a : int) : int = {
     var invmod;
-    invmod <@ binaryExtendedEuclideanAlgorithm(N,a,R2_MOD_P);
+    invmod <@ binaryExtendedEuclideanAlgorithm(P,a,R2_MOD_P);
     return invmod;
   } 
 
@@ -174,7 +174,7 @@ module AlmostYul = {
   ySquared <@ montgomeryMul(y, y);
   xSquared <@ montgomeryMul(x, x);
   xQubed <@ montgomeryMul(xSquared, x);
-  xQubedPlusThree <@ montgomeryAdd(xQubed, (3 * R) %% N);
+  xQubedPlusThree <@ montgomeryAdd(xQubed, (3 * R) %% P);
   return (ySquared = xQubedPlusThree);    
  }
 
@@ -201,7 +201,7 @@ proc burnGas() = {
 }
 
 proc _P() : int = {
- return N;
+ return P;
 }    
 
 
@@ -411,9 +411,4 @@ proc main(x1: int, y1: int, x2: int, y2: int) : int * int = {
         return ret;
     }
 
-
-
-
 }.
-
-

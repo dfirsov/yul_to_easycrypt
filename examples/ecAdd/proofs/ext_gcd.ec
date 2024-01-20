@@ -7,8 +7,8 @@ require import Gcd_props.
 module ExtGCD = {
 
   proc simplify_ts(t1:int,t2:int,t3: int,u:int,v:int) = {
-      while (even(t3)){
-        if (even(t1) /\ even(t2)){
+      while (!odd(t3)){
+        if (!odd(t1) /\ !odd(t2)){
           (t1,t2,t3) <- (t1 %/2, t2 %/2, t3 %/2);
         }else{
           (t1,t2,t3) <- ((t1+v) %/2, (t2-u) %/2, t3 %/2);
@@ -18,8 +18,8 @@ module ExtGCD = {
   }
 
   proc opt_simplify_ts(t1:int,t2:int,t3: int,u:int,v:int) = {
-      while (even t3){
-        if (even t2){
+      while (!odd t3){
+        if (!odd t2){
           (t1,t2,t3) <- (t1 %/2, t2 %/2, t3 %/2);
         }else{
           (t1,t2,t3) <- ((t1+v) %/2, (t2-u) %/2, t3 %/2);
@@ -135,7 +135,7 @@ while((odd u_in \/ odd v_in)
  /\ (u_in * t1 + v_in * t2 = t3
  /\ u_in * u1 + v_in * u2 = u3
  /\ u_in * v1 + v_in * v2 = v3) /\ u = u_in /\ v = v_in /\ t3 <> 0 ).
-case (even t1 /\ even t2).
+case ((!odd t1) /\ !odd t2).
  rcondt 1.
  skip. progress.
  wp. skip. progress.
@@ -145,8 +145,8 @@ case (even t1 /\ even t2).
  timeout 15. smt(@Int). smt.
  rcondf 1. skip. progress.
   wp. skip. progress. 
-  have t1v : even (t1{hr} + v{hr}). smt.
-  have t2u : even (t2{hr} - u{hr}). smt.
+  have t1v : !odd (t1{hr} + v{hr}). smt.
+  have t2u : !odd (t2{hr} - u{hr}). smt(@Int).
   have ->: u{hr} * ((t1{hr} + v{hr}) %/ 2) = (u{hr} * (t1{hr} + v{hr})) %/ 2.
   timeout 15. smt(@Int).
   have ->: v{hr} * ((t2{hr} - u{hr}) %/ 2) = v{hr} * (t2{hr} - u{hr}) %/ 2.
@@ -170,23 +170,23 @@ while(odd u
  /\ (u_in * t1 + v_in * t2 = t3
  /\ u_in * u1 + v_in * u2 = u3
  /\ u_in * v1 + v_in * v2 = v3) /\ u = u_in /\ v = v_in /\ t3 <> 0 /\ t3 < 0 = t3_in < 0).
-case (even t2).
+case (!odd t2).
  rcondt 1.
  skip. progress.
 wp.  skip. progress.
-have : even(v{hr} * t2{hr}). smt.
+have : !odd(v{hr} * t2{hr}). smt.
 progress.
- have : even (u{hr} * t1{hr}). smt.
+ have : !odd (u{hr} * t1{hr}). smt.
  progress.
-  have : even t1{hr}. smt. progress.
+  have : !odd t1{hr}. smt. progress.
  have ->: (u{hr} * t1{hr} + v{hr} * t2{hr}) %/ 2 =
   (u{hr} * t1{hr} %/ 2 + v{hr} * t2{hr} %/ 2).
  smt(@Int).
  timeout 15. smt(@Int). smt. smt.
  rcondf 1. skip. progress.
   wp. skip. progress.
-  have t1v : even (t1{hr} + v{hr}). smt.
-  have t2u : even (t2{hr} - u{hr}). smt.
+  have t1v : !odd (t1{hr} + v{hr}). smt.
+  have t2u : !odd (t2{hr} - u{hr}). smt.
   have ->: u{hr} * ((t1{hr} + v{hr}) %/ 2) = (u{hr} * (t1{hr} + v{hr})) %/ 2.
   timeout 15. smt(@Int).
   have ->: v{hr} * ((t2{hr} - u{hr}) %/ 2) = v{hr} * (t2{hr} - u{hr}) %/ 2.
@@ -301,16 +301,6 @@ progress.
 smt(@Int @IntDiv).
 qed.    
  
-    (* 
-
-
-inv (a * R)  = (a * R)^(-1) = a^-1 * R^-1
-
-
-a^-1 * R^-1  * R^2 = a^-1 * R
-
-
-*)
 
 lemma main2_full_correctness &m u v : 0 < u => 0 < v => odd u =>
     Pr[ ExtGCD.main2(u,v) @&m : (v * res.`2 %% u = res.`3 %% u) /\ (res.`3 = (gcd u v)) ] = 1%r.

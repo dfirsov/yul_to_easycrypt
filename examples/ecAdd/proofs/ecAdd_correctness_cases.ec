@@ -3,7 +3,7 @@ require import Gcd Gcd_props.
 
 require import AlmostYUL.
 require import Montgomery_arith.
-require import EcAdd_spec.
+require import EcAdd_spec Parameters.
 require import ExtraFacts.
 
 
@@ -23,8 +23,8 @@ qed.
 lemma ecAdd_correct_2 x1_in y1_in x2_in y2_in :  
  equiv [ AlmostYul.main ~ AlmostYul.skipf : 
          (arg = (x1_in,y1_in,x2_in,y2_in)  
-         /\ 0 <= x2_in < AlmostYUL.N 
-         /\ 0 <= y2_in < AlmostYUL.N
+         /\ 0 <= x2_in < P 
+         /\ 0 <= y2_in < P
          /\ pointIsInCurve x2_in y2_in
       
          /\ (x1_in = 0 /\ y1_in = 0) 
@@ -57,8 +57,8 @@ qed.
 lemma ecAdd_correct_3 x1_in y1_in x2_in y2_in :  
  equiv[ AlmostYul.main ~ AlmostYul.skipf :
          arg{1} = (x1_in,y1_in,x2_in,y2_in) 
-         /\ (0 <= x1_in < AlmostYUL.N){1}
-         /\ (0 <= y1_in < AlmostYUL.N){1}
+         /\ (0 <= x1_in < P){1}
+         /\ (0 <= y1_in < P){1}
          /\ (pointIsInCurve x1_in y1_in){1}
 
          /\ !(x1_in = 0 /\ y1_in = 0){1}
@@ -92,10 +92,10 @@ qed.
 lemma ecAdd_correct_4 x1_in y1_in x2_in y2_in :  
  equiv [ AlmostYul.main ~ AlmostYul.skipf : 
          (arg = (x1_in,y1_in,x2_in,y2_in) 
-         /\ 0 <= x1_in < AlmostYUL.N 
-         /\ 0 <= y1_in < AlmostYUL.N
-         /\ 0 <= x2_in < AlmostYUL.N 
-         /\ 0 <= y2_in < AlmostYUL.N      
+         /\ 0 <= x1_in < P 
+         /\ 0 <= y1_in < P
+         /\ 0 <= x2_in < P 
+         /\ 0 <= y2_in < P      
          /\ pointIsInCurve x1_in y1_in
          /\ pointIsInCurve x2_in y2_in
 
@@ -148,10 +148,10 @@ qed.
 lemma ecAdd_correct_5 x1_in y1_in x2_in y2_in :  
  equiv [ AlmostYul.main ~ AlmostYul.skipf  : 
          (arg = (x1_in,y1_in,x2_in,y2_in) 
-         /\ 0 <= x1_in < AlmostYUL.N 
-         /\ 0 <= y1_in < AlmostYUL.N (* to be disjoint from  *)
-         /\ 0 <= x2_in < AlmostYUL.N 
-         /\ 0 <= y2_in < AlmostYUL.N      
+         /\ 0 <= x1_in < P 
+         /\ 0 <= y1_in < P (* to be disjoint from  *)
+         /\ 0 <= x2_in < P 
+         /\ 0 <= y2_in < P      
          /\ pointIsInCurve x1_in y1_in
          /\ pointIsInCurve x2_in y2_in
          /\ !(x1_in = 0 /\ y1_in = 0)
@@ -169,12 +169,12 @@ rcondt {1} 9. progress. inline*. auto.
 rcondf {1} 14. progress. inline*. auto. smt().
 rcondf {1} 19. progress. inline*. auto. smt().
 rcondf {1} 24. progress. inline*. auto. progress. rewrite /as_bool.
- have f: (AlmostYUL.N - y2{hr}) %% R = (AlmostYUL.N - y2{hr}). smt.
+ have f: (P - y2{hr}) %% R = (P - y2{hr}). smt.
  rewrite f f. 
- have ->: (AlmostYUL.N - y2{hr}) %% AlmostYUL.N = (AlmostYUL.N - y2{hr}). smt.
- case (AlmostYUL.N - y2{hr} <> y2{hr});auto.
+ have ->: (P - y2{hr}) %% P = (P - y2{hr}). smt.
+ case (P - y2{hr} <> y2{hr});auto.
   move => j.
-  have : even AlmostYUL.N. apply (even_fact AlmostYUL.N y2{hr}). auto.
+  have : !odd P. apply (even_fact P y2{hr}). auto.
   smt.             
 rcondt {1} 24. progress. inline*. auto. progress. rewrite /as_bool.
 rcondf {1} 33. progress. inline*. auto. 
@@ -203,7 +203,7 @@ pose x:= x2{1} * x2{1} * R %% P.
 seq 2 0 : (#pre /\ func382 = (y1_in + y1_in) * R %% P){1}. inline*. wp.  progress. skip. progress.
 have ->: (y2{1} * R %% P + y2{1} * R %% P) %% R  = (y2{1} * R %% P + y2{1} * R %% P) . smt.
 smt(@Int @IntDiv).    
-pose slope_raw := (3 * x1_squared_raw) * (inv P (y1_in + y1_in)).             
+pose slope_raw := (3 * x1_squared_raw) * (inv  (y1_in + y1_in)).             
 seq 1 0 : (#pre /\ slope = slope_raw * R %% P){1}.
 ecall {1} (div_m (3 * x1_in * x1_in) (y1_in + y1_in)).
 skip. progress.
@@ -268,13 +268,13 @@ smt(@Int @IntDiv).
 smt(@Int @IntDiv).                            
 smt(@Int @IntDiv).
 smt(@Int @IntDiv).
-have ->: x3_raw * R %% P * inv P R %% P = x3_raw %% P.
-  have ->: x3_raw * R %% P * inv P R %% P
-    = x3_raw * R %% P * (inv P R %% P) %% P. smt(@Int @IntDiv).
-   have ->: x3_raw * R %% P * (inv P R %% P) %% P = (x3_raw * R  * (inv P R)) %% P.
+have ->: x3_raw * R %% P * inv R %% P = x3_raw %% P.
+  have ->: x3_raw * R %% P * inv R %% P
+    = x3_raw * R %% P * (inv R %% P) %% P. smt(@Int @IntDiv).
+   have ->: x3_raw * R %% P * (inv R %% P) %% P = (x3_raw * R  * (inv R)) %% P.
    smt(@Int @IntDiv).
-   have ->: (x3_raw * R  * (inv P R)) = (x3_raw * (R  * (inv P R))). smt().
-   have ->: x3_raw * (R * inv P R) %% P = x3_raw  * ((R * inv P R) %% P )  %% P. smt(@Int @IntDiv).
+   have ->: (x3_raw * R  * (inv R)) = (x3_raw * (R  * (inv R))). smt().
+   have ->: x3_raw * (R * inv R) %% P = x3_raw  * ((R * inv R) %% P )  %% P. smt(@Int @IntDiv).
    rewrite inv_ax_opp. smt. auto.
     rewrite /add_x. simplify.
 rewrite /x3_raw.
@@ -282,12 +282,12 @@ rewrite /slope_raw.
 rewrite /x1_squared_raw.
 have ->: (x2{1} * x2{1}) = x2{1} ^ 2. smt.
 congr. congr. smt.
-have ->: (slope_raw * (x2{1} - x3_raw) - y2{1}) * R %% P * inv P R %% P
+have ->: (slope_raw * (x2{1} - x3_raw) - y2{1}) * R %% P * inv R %% P
               = (slope_raw * (x2{1} - x3_raw) - y2{1}) %% P.
-have ->: (slope_raw * (x2{1} - x3_raw) - y2{1}) * R %% P * inv P R %% P
- = ((slope_raw * (x2{1} - x3_raw) - y2{1}) * (inv P R * R)) %% P. smt(@Int @IntDiv).
-have ->: ((slope_raw * (x2{1} - x3_raw) - y2{1}) * (inv P R * R)) %% P
-  = ((slope_raw * (x2{1} - x3_raw) - y2{1}) * ((inv P R * R) %% P)) %% P. smt(@Int @IntDiv).
+have ->: (slope_raw * (x2{1} - x3_raw) - y2{1}) * R %% P * inv R %% P
+ = ((slope_raw * (x2{1} - x3_raw) - y2{1}) * (inv R * R)) %% P. smt(@Int @IntDiv).
+have ->: ((slope_raw * (x2{1} - x3_raw) - y2{1}) * (inv R * R)) %% P
+  = ((slope_raw * (x2{1} - x3_raw) - y2{1}) * ((inv R * R) %% P)) %% P. smt(@Int @IntDiv).
 rewrite inv_ax.  simplify. smt. simplify. auto.              
 congr. congr.
 rewrite /add_y /add_x. simplify.
@@ -298,21 +298,19 @@ rewrite /slope_raw.
 rewrite /x1_squared_raw.
 have ->: (x2{1} * x2{1}) = x2{1} ^ 2. smt.
 congr.
-have ->: (3 * x2{1} ^ 2 * inv P (y2{1} + y2{1}) *
-  (3 * x2{1} ^ 2 * inv P (y2{1} + y2{1})) = (3 * x2{1} ^ 2 * inv P (2 * y2{1})) ^ 2). smt.
+have ->: (3 * x2{1} ^ 2 * inv (y2{1} + y2{1}) *
+  (3 * x2{1} ^ 2 * inv (y2{1} + y2{1})) = (3 * x2{1} ^ 2 * inv (2 * y2{1})) ^ 2). smt.
 smt.
 qed.
-
-
 
 
 lemma ecAdd_correct_6 x1_in y1_in x2_in y2_in :  
  equiv[ AlmostYul.main ~ AlmostYul.skipf : 
          (arg = (x1_in,y1_in,x2_in,y2_in)
-         /\ 0 <= x1_in < AlmostYUL.N 
-         /\ 0 <= y1_in < AlmostYUL.N 
-         /\ 0 <= x2_in < AlmostYUL.N 
-         /\ 0 <= y2_in < AlmostYUL.N      
+         /\ 0 <= x1_in < P 
+         /\ 0 <= y1_in < P 
+         /\ 0 <= x2_in < P 
+         /\ 0 <= y2_in < P      
          /\ pointIsInCurve x1_in y1_in
          /\ pointIsInCurve x2_in y2_in
 
@@ -331,7 +329,7 @@ rcondt {1} 9. progress. inline*. auto.
 rcondf {1} 14. progress. inline*. auto. smt().
 rcondf {1} 19. progress. inline*. auto. smt().
 rcondf {1} 24. progress. inline*. auto. progress. rewrite /as_bool.
- have f: (AlmostYUL.N - y1{hr}) %% R = (AlmostYUL.N - y1{hr}). smt.
+ have f: (P - y1{hr}) %% R = (P - y1{hr}). smt.
  rewrite f f. clear f.             
 case (x1{hr} = x2{hr}). progress.
 smt. auto.
@@ -355,10 +353,10 @@ rcondf {1} 13. progress. inline*. auto.  progress. rewrite /as_bool.
 seq 12 0 : (#pre){1}. inline*. wp. auto.
 rcondt {1} 1. progress. auto.                        
 seq 4 0 : ((
-   (0 <= x1_in && x1_in < AlmostYUL.N) /\
-   (0 <= y1_in && y1_in < AlmostYUL.N) /\
-   (0 <= x2_in && x2_in < AlmostYUL.N) /\
-   (0 <= y2_in && y2_in < AlmostYUL.N) /\
+   (0 <= x1_in && x1_in < P) /\
+   (0 <= y1_in && y1_in < P) /\
+   (0 <= x2_in && x2_in < P) /\
+   (0 <= y2_in && y2_in < P) /\
    pointIsInCurve x1_in y1_in /\
    pointIsInCurve x2_in y2_in /\
    ! (x1_in = 0 /\ y1_in = 0) /\
@@ -397,7 +395,7 @@ rewrite  - qqq. smt (@Int @IntDiv).
 seq 2 0 : (#pre /\ func500 = (x2_in - x1_in) * R %% P){1}.
 ecall {1} (submod x2{1} x1{1} P). inline*. wp. skip. progress. smt. smt. smt. smt. smt. smt.
 rewrite  - qqq. smt (@Int @IntDiv).
-pose slope_raw := (y2_in - y1_in) * (inv P (x2_in - x1_in)).
+pose slope_raw := (y2_in - y1_in) * (inv (x2_in - x1_in)).
 seq 1 0 : (#pre /\ slope = slope_raw * R %% P){1}.
 ecall {1} (div_m (y2_in - y1_in) (x2_in - x1_in)). skip. progress. smt. smt.
 case (x2_in <> x1_in). progress.
@@ -441,22 +439,22 @@ wp.
 ecall {1} (outof_m y3{1}).
 ecall {1} (outof_m x3{1}).
 skip. progress. smt. smt. smt. smt.
-have ->: (slope_raw * slope_raw - (x1_in + x2_in)) * R %% P * inv P R %% P
+have ->: (slope_raw * slope_raw - (x1_in + x2_in)) * R %% P * inv R %% P
  = (slope_raw * slope_raw - (x1_in + x2_in)) %% P.
-have ->: (slope_raw * slope_raw - (x1_in + x2_in)) * R %% P * inv P R %% P
- = (slope_raw * slope_raw - (x1_in + x2_in)) * R * inv P R %% P.
+have ->: (slope_raw * slope_raw - (x1_in + x2_in)) * R %% P * inv R %% P
+ = (slope_raw * slope_raw - (x1_in + x2_in)) * R * inv R %% P.
 smt(@Int @IntDiv).
-have ->:  (slope_raw * slope_raw - (x1_in + x2_in)) * R * inv P R %% P
-  = (slope_raw * slope_raw - (x1_in + x2_in)) * (R * inv P R) %% P. smt().
-have ->:   (slope_raw * slope_raw - (x1_in + x2_in)) * (R * inv P R) %% P
-  = (slope_raw * slope_raw - (x1_in + x2_in)) * ((R * inv P R) %% P) %% P.
+have ->:  (slope_raw * slope_raw - (x1_in + x2_in)) * R * inv R %% P
+  = (slope_raw * slope_raw - (x1_in + x2_in)) * (R * inv R) %% P. smt().
+have ->:   (slope_raw * slope_raw - (x1_in + x2_in)) * (R * inv R) %% P
+  = (slope_raw * slope_raw - (x1_in + x2_in)) * ((R * inv R) %% P) %% P.
 smt(@Int @IntDiv). rewrite inv_ax_opp.   smt. simplify. auto.
 smt.
-have ->: (slope_raw * func532_raw - y1_in) * R %% P * inv P R %% P
- = (slope_raw * func532_raw - y1_in) * (R * inv P R) %% P.
+have ->: (slope_raw * func532_raw - y1_in) * R %% P * inv R %% P
+ = (slope_raw * func532_raw - y1_in) * (R * inv R) %% P.
 smt(@Int @IntDiv).
-have ->: (slope_raw * func532_raw - y1_in) * (R * inv P R) %% P =
- (slope_raw * func532_raw - y1_in) * (R * inv P R %%P) %% P.
+have ->: (slope_raw * func532_raw - y1_in) * (R * inv R) %% P =
+ (slope_raw * func532_raw - y1_in) * (R * inv R %%P) %% P.
 smt(@Int @IntDiv).
 rewrite inv_ax_opp. smt. simplify.
  smt.

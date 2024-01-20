@@ -1,7 +1,7 @@
 require import AllCore Int IntDiv.
 require import Gcd Gcd_props.
 
-require import AlmostYUL.
+require import AlmostYUL Parameters.
 require import Montgomery_arith.
 
 require import EcAdd_correctness_cases EcAdd_safety_cases EcAdd_spec.
@@ -21,8 +21,8 @@ lemma ecAdd_safety &m (x1_in y1_in x2_in y2_in : int) :
          !valid_ecAdd_input x1_in y1_in x2_in y2_in =>
          Pr[ AlmostYul.main(x1_in, y1_in, x2_in, y2_in)@&m : true ] = 0%r.
 progress.
-pose disj1 := !(x1_in < AlmostYUL.N /\
-   y1_in < AlmostYUL.N /\ x2_in < AlmostYUL.N /\ y2_in < AlmostYUL.N).
+pose disj1 := !(x1_in < P /\
+   y1_in < P /\ x2_in < P /\ y2_in < P).
 pose disj2 := ((!pIsInfinity (x1_in, y1_in) /\ !pointIsInCurve x1_in y1_in)
          \/ (!pIsInfinity (x2_in, y2_in) /\ !pointIsInCurve x2_in y2_in)).                
 have : disj1 \/ disj2. smt().

@@ -213,24 +213,24 @@ qed.
 
 lemma almost_yul_redc_full_correctness T_in Tlo Thi R_in N' N :
   2 * N < R_in =>
-  0 < N => 
+  1 < N => 
   (N' * N %% R_in) = (- 1) %% R_in => 
   coprime N R_in =>
   
  phoare[ AlmostYul._REDC : 
          arg = (Tlo,Thi,R_in,N,N') /\  Tlo = T_in %% R_in /\ Thi = T_in %/ R_in /\ 0 <= T_in < R_in * N
-              ==> res = T_in * (inv N R_in) %% N ] = 1%r.
+              ==> res = T_in * (invm R_in N) %% N ] = 1%r.
       
 proof. progress. bypr. progress.
-have <-: Pr[ OptREDC._REDC5(T_in,R_in,N,N') @&m : res = T_in * (inv N R_in) %% N] = 1%r.
-have ->: Pr[OptREDC._REDC5(T_in, R_in, N, N') @ &m : res = T_in * inv N R_in %% N]
+have <-: Pr[ OptREDC._REDC5(T_in,R_in,N,N') @&m : res = T_in * (invm R_in N) %% N] = 1%r.
+have ->: Pr[OptREDC._REDC5(T_in, R_in, N, N') @ &m : res = T_in * invm R_in N %% N]
  = Pr[OptREDC._REDC5(T_in, R_in, N, N') @ &m : res = o2_redc T_in R_in N' N].
 rewrite Pr[mu_eq] . progress.
-rewrite opt_redc_eq3;auto.
-rewrite -  (redc_fun_correct T_in R_in N' N);auto. smt().  
+rewrite opt_redc_eq3;auto. smt().
+rewrite -  (redc_fun_correct T_in R_in N' N);auto. smt().  smt().
 rewrite opt_redc_eq;auto. smt().
-rewrite opt_redc_eq3;auto.
-rewrite -  (redc_fun_correct T_in R_in N' N);auto. smt(). 
+rewrite opt_redc_eq3;auto. smt().
+rewrite -  (redc_fun_correct T_in R_in N' N);auto. smt().  smt().
 rewrite opt_redc_eq;auto. smt(). auto.
 byphoare (_: arg = (T_in,R_in,N,N') ==> _).
 apply maeq6. auto. auto.

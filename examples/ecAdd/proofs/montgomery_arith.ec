@@ -2,25 +2,11 @@ pragma Goals:printall.
 require import AllCore Int IntDiv.
 require import Gcd Gcd_props Opt_redc.
 
-require import AlmostYUL.
+require import Parameters AlmostYUL.
 
 
-op P = AlmostYUL.N.
-axiom ax1 : 2 * P < R.
-axiom ax2 : 0 < P.
-axiom ax3 :  N' * P %% R = (-1) %% R.
-axiom ax4 :  coprime P R.
-axiom ax4_1 :  coprime R P.
-axiom R_pos : 0 < R. 
-axiom ax5 : 0 <= R2_MOD_P < P.
-axiom ax6 : R2_MOD_P = (R * R) %% P.
-axiom ax7 : 2 < P.
-axiom ax9 : odd P.
-axiom ax10 : odd R2_MOD_P.
-axiom P_prime : prime P.
-
-axiom ax11 (a b : int) : coprime P (a * b) => inv P (a * b) %% P  = inv P a * inv P b %% P.
-axiom ax12 a : coprime P a => inv P (a %% P) = inv P a.
+axiom ax11 (a b : int) : coprime P (a * b) => inv  (a * b) %% P  = inv  a * inv  b %% P.
+axiom ax12 a : coprime P a => inv (a %% P) = inv  a.
 lemma ax13 a : coprime P a = coprime P (a %% P). rewrite /coprime. rewrite gcd4. rewrite - gcd_modl.
 rewrite gcd4. auto. qed.
 
@@ -56,15 +42,15 @@ qed.
 
 lemma almost_yul_redc_full_correctness':
   forall (Tlo Thi  N' N : int),
-    2 * N < AlmostYUL.R =>
-    0 < N =>
-    N' * N %% AlmostYUL.R = (-1) %% AlmostYUL.R =>
-    coprime N AlmostYUL.R =>
+    2 * N < Parameters.R =>
+    1 < N =>
+    N' * N %% Parameters.R = (-1) %% Parameters.R =>
+    coprime N Parameters.R =>
     phoare[ AlmostYul._REDC :
-                 0 <=(comb Tlo Thi) < R * N /\ arg = (Tlo, Thi, AlmostYUL.R, N, N') /\ 0 <= Thi < R /\
-    0 <= Tlo < R ==> res = (comb Tlo Thi) * inv N AlmostYUL.R %% N] = 1%r.
+                 0 <=(comb Tlo Thi) < R * N /\ arg = (Tlo, Thi, Parameters.R, N, N') /\ 0 <= Thi < R /\
+    0 <= Tlo < R ==> res = (comb Tlo Thi) * invm Parameters.R N %% N] = 1%r.
 progress.
-conseq (almost_yul_redc_full_correctness  (comb Tlo Thi) Tlo Thi AlmostYUL.R N' N _ _ _ _  );auto.
+conseq (almost_yul_redc_full_correctness  (comb Tlo Thi) Tlo Thi Parameters.R N' N _ _ _ _  );auto.
 progress. rewrite /comb. smt. smt. smt.
 qed.    
 
@@ -94,13 +80,13 @@ rewrite /comb.
 have ->: (a{hr} * R2_MOD_P %/ R * R + a{hr} * R2_MOD_P %% R)
  = (a{hr} * R2_MOD_P). smt.
 rewrite ax6.
-have ->: a{hr} * (R * R %% Top.P) * inv Top.P R
- = a{hr} * ((R * R %% Top.P) * inv Top.P R). smt.
-have ->: a{hr} * (R * R %% Top.P * inv Top.P R) %% Top.P
- = a{hr} %% Top.P * (R * R %% Top.P * inv Top.P R %% Top.P) %% Top.P. smt(@Int @IntDiv).
-have ->: (R * R %% P * inv P R %% P) = (R * R * inv P R %% P). smt(@Int @IntDiv).
-have ->: (R * R * inv P R %% P) = (R * (R * inv P R) %% P). smt(@Int @IntDiv).
-have ->: (R * (R * inv P R) %% P) = (R * ((inv P R * R ) %% P) %% P). smt(@Int @IntDiv). rewrite inv_ax. smt.
+have ->: a{hr} * (R * R %% P) * inv R
+ = a{hr} * ((R * R %% P) * inv  R). smt.
+have ->: a{hr} * (R * R %% P * inv R) %% P
+ = a{hr} %% P * (R * R %% P * inv  R %% P) %% P. smt(@Int @IntDiv).
+have ->: (R * R %% P * inv R %% P) = (R * R * inv R %% P). smt(@Int @IntDiv).
+have ->: (R * R * inv R %% P) = (R * (R * inv R) %% P). smt(@Int @IntDiv).
+have ->: (R * (R * inv R) %% P) = (R * ((inv R * R ) %% P) %% P). smt(@Int @IntDiv). rewrite inv_ax. smt.
  smt(@Int @IntDiv).
 hoare. simplify. auto. auto.
 hoare. simplify. auto. auto.
@@ -111,7 +97,7 @@ qed.
 
 
 lemma outof_m m_in :
-    phoare [ AlmostYul.outOfMontgomeryForm : arg = m_in  /\ 0 <= m < P ==> res = m_in * (inv P R) %% P ] = 1%r.
+    phoare [ AlmostYul.outOfMontgomeryForm : arg = m_in  /\ 0 <= m < P ==> res = m_in * (inv R) %% P ] = 1%r.
 proc.
 exists* m. elim*. move => mL.
 simplify.
@@ -126,14 +112,14 @@ lemma add_m a_in b_in :
       /\  0 <= b_in <= P ==> res = (a_in + b_in) %% P ] = 1%r.
 proof. proc.
 wp. skip. progress.
-case (AlmostYUL.N <= (augend{hr} + addend{hr}) %% R).
+case (P <= (augend{hr} + addend{hr}) %% R).
 have f1 : (augend{hr} + addend{hr}) < 2 * P. smt.
 have f2 : (augend{hr} + addend{hr}) %% R = (augend{hr} + addend{hr}) . smt.
 rewrite f2.
 progress.
 have f3 : 0 <= (augend{hr} + addend{hr} - P) < P. split. smt.
 progress.   smt. 
-have -> : (augend{hr} + addend{hr} - AlmostYUL.N) %% R = (augend{hr} + addend{hr} - AlmostYUL.N). smt.
+have -> : (augend{hr} + addend{hr} - P) %% R = (augend{hr} + addend{hr} - P). smt.
 progress. rewrite /P.
 smt (pmod_small @IntDiv).
 progress.
@@ -164,7 +150,7 @@ exists* lowestHalfOfProduct, higherHalfOfProduct. elim*.
 move => lo hi.
 call  (almost_yul_redc_full_correctness' lo hi  N' P). smt. smt. smt. smt.
 skip. progress. 
-smt.
+smt(@Int @IntDiv).
 have ->: comb (a_in * R %% P * (b_in * R %% P) %% R)
   (a_in * R %% P * (b_in * R %% P) %/ R)
    = a_in * R %% P * (b_in * R %% P). smt.
@@ -173,22 +159,22 @@ have ->: comb (a_in * R %% P * (b_in * R %% P) %% R)
   (a_in * R %% P * (b_in * R %% P) %/ R)
    = a_in * R %% P * (b_in * R %% P). timeout 10. smt.
 have ->:
-   a_in * R %% P * (b_in * R %% P) * inv P R %% P
- =  a_in * R  * ((b_in * R %% P) * inv P R) %% P.
+   a_in * R %% P * (b_in * R %% P) * inv R %% P
+ =  a_in * R  * ((b_in * R %% P) * inv R) %% P.
  smt(@Int @IntDiv).
-have ->: a_in * R  * ((b_in * R %% P) * inv P R) %% P
-  = a_in * R  * ((b_in * R %% P) * inv P R %% P) %% P.
+have ->: a_in * R  * ((b_in * R %% P) * inv R) %% P
+  = a_in * R  * ((b_in * R %% P) * inv R %% P) %% P.
  smt(@Int @IntDiv).  
-have ->: ((b_in * R %% P) * inv P R %% P)
-  = (b_in * R) * inv P R %% P . 
+have ->: ((b_in * R %% P) * inv R %% P)
+  = (b_in * R) * inv R %% P . 
  smt(@Int @IntDiv).  
-have ->: (b_in * R) * inv P R %% P
- = b_in * (R * inv P R) %% P.
+have ->: (b_in * R) * inv R %% P
+ = b_in * (R * inv R) %% P.
 smt.
-have ->: b_in * (R * inv P R) %% P 
- = b_in * (R * inv P R %% P) %% P.
+have ->: b_in * (R * inv R) %% P 
+ = b_in * (R * inv R %% P) %% P.
  smt(@Int @IntDiv).
-have ->: (R * inv P R %% P) = 1.
+have ->: (R * inv R %% P) = 1.
    smt.
 have ->: b_in * 1 = b_in. smt().
 have ->: a_in * R * (b_in %% P) %% P
@@ -203,12 +189,11 @@ require import Ext_gcd_optmized.
 
 lemma inv_eq u_in :
      equiv [ AlmostYul.simplify_ts_pos ~ OptExtGcd.simplify_ts_pos : ={t2,t3,u} /\ u{1} = u_in
-       /\ 0 <= t2{1} <= u{1}  /\ 0 <= t3{1} <= u{1} /\ 2 * u{1} < R /\ 0 <= u{1} ==> ={res} /\ 0 <= res{1}.`1 <= u_in /\ 0 <= res{1}.`2 <= u_in ].
+       /\ 0 <= t2{1} <= u{1}  /\ 0 <= t3{1} <= u{1} /\ 2 * u{1} < Parameters.R /\ 0 <= u{1} ==> ={res} /\ 0 <= res{1}.`1 <= u_in /\ 0 <= res{1}.`2 <= u_in ].
 proc. simplify.
-while (#pre). wp. skip. progress.
-smt. smt. smt. smt. smt. smt. smt. smt. smt.
+while (#pre). wp. skip. progress;smt.
 skip. progress.
-qed.    
+qed.
     
 
 lemma simp_eq :
@@ -269,41 +254,41 @@ qed.
 
 lemma inv_m a_in :
        phoare [ AlmostYul.montgomeryModularInverse : arg = (a_in * R %% P)  /\ 0 < arg < P
-         ==> res = (inv P a_in) * R %% P ] = 1%r.
+         ==> res = (inv a_in) * R %% P ] = 1%r.
 bypr. progress. rewrite H. rewrite H in H0. rewrite H in H1. clear H.
- have ->: Pr[AlmostYul.montgomeryModularInverse(a_in * R %% P) @ &m : res = inv P a_in * R %% P]
-        = Pr[AlmostYul.binaryExtendedEuclideanAlgorithm(P, a_in * R %% P, R2_MOD_P) @ &m : res = inv P a_in * R %% P].
+ have ->: Pr[AlmostYul.montgomeryModularInverse(a_in * R %% P) @ &m : res = inv a_in * R %% P]
+        = Pr[AlmostYul.binaryExtendedEuclideanAlgorithm(P, a_in * R %% P, R2_MOD_P) @ &m : res = inv a_in * R %% P].
   byequiv. proc*. inline AlmostYul.montgomeryModularInverse. wp. sp. simplify.
    call (_:true). sim. skip. progress. auto. auto.
         
- have ->: Pr[AlmostYul.binaryExtendedEuclideanAlgorithm(P, a_in * R %% P, R2_MOD_P) @ &m : res = inv P a_in * R %% P]
+ have ->: Pr[AlmostYul.binaryExtendedEuclideanAlgorithm(P, a_in * R %% P, R2_MOD_P) @ &m : res = inv a_in * R %% P]
         = Pr[OptExtGcd.main10(P, a_in * R %% P, R2_MOD_P) @ &m :
-   res.`1 = inv P a_in * R %% P].
+   res.`1 = inv a_in * R %% P].
 byequiv. conseq  simp_eq. progress. smt. smt. smt. smt. auto. auto. auto.
 
 byphoare (_: arg = (P, a_in * R %% P, R2_MOD_P) ==> _).
 conseq (modular_inversion_correctness P (a_in * R %% P) R2_MOD_P _ _ _ _ _ _).
-have QQ : inv P a_in * R %% P = inv P (a_in * R %% P) * R2_MOD_P %% P.
+have QQ : inv a_in * R %% P = inv (a_in * R %% P) * R2_MOD_P %% P.
 
-  have ->: inv P (a_in * R %% P) * R2_MOD_P %% P = inv P (a_in * R %% P) %% P * R2_MOD_P %% P.
+  have ->: inv (a_in * R %% P) * R2_MOD_P %% P = inv (a_in * R %% P) %% P * R2_MOD_P %% P.
   smt(@Int @IntDiv). rewrite ax12. rewrite ax13. apply prime_coprime. smt. smt.
           rewrite ax11.  rewrite ax13. apply prime_coprime. smt. smt.
-have ->: inv P a_in * inv P R %% P = (inv P a_in %% P) * (inv P R %% P) %% P.   smt(@Int @IntDiv).
-have ->: inv P a_in %% P * (inv P R %% P) %% P * R2_MOD_P %% P
-        = inv P a_in %% P * (inv P R %% P) * R2_MOD_P %% P. smt(@Int @IntDiv).
+have ->: inv a_in * inv R %% P = (inv a_in %% P) * (inv R %% P) %% P.   smt(@Int @IntDiv).
+have ->: inv a_in %% P * (inv R %% P) %% P * R2_MOD_P %% P
+        = inv a_in %% P * (inv R %% P) * R2_MOD_P %% P. smt(@Int @IntDiv).
 
 
 rewrite  ax6.
-have ->: inv P a_in %% P * (inv P R %% P) * (R * R %% P) %% P
-     = inv P a_in %% P * ((inv P R %% P) * (R * R %% P)) %% P. smt().
-have ->: inv P a_in %% P * ((inv P R %% P) * (R * R %% P)) %% P
-   = inv P a_in %% P * ((inv P R %% P) * (R * R %% P) %% P) %% P. smt(@Int @IntDiv).
+have ->: inv a_in %% P * (inv R %% P) * (R * R %% P) %% P
+     = inv a_in %% P * ((inv R %% P) * (R * R %% P)) %% P. smt().
+have ->: inv a_in %% P * ((inv R %% P) * (R * R %% P)) %% P
+   = inv a_in %% P * ((inv R %% P) * (R * R %% P) %% P) %% P. smt(@Int @IntDiv).
 have ->:  R * R %% P  =  R %% P * R %% P. smt(@Int @IntDiv).
-have ->: (inv P R %% P * (R %% P * R %% P) %% P) =
-   (inv P R %% P * (R %% P * R) %% P). smt(@Int @IntDiv).
-have ->: inv P R %% P * (R %% P * R) = (inv P R %% P * (R %% P)) * R.   smt().
-have ->: (inv P R %% P * (R %% P) * R %% P) = (inv P R %% P * (R %% P) %% P * R %% P).   smt(@Int @IntDiv).
-have ->: inv P R %% P * (R %% P) %% P = inv P R  * R %% P. smt(@Int @IntDiv).
+have ->: (inv R %% P * (R %% P * R %% P) %% P) =
+   (inv R %% P * (R %% P * R) %% P). smt(@Int @IntDiv).
+have ->: inv R %% P * (R %% P * R) = (inv R %% P * (R %% P)) * R.   smt().
+have ->: (inv R %% P * (R %% P) * R %% P) = (inv R %% P * (R %% P) %% P * R %% P).   smt(@Int @IntDiv).
+have ->: inv R %% P * (R %% P) %% P = inv R  * R %% P. smt(@Int @IntDiv).
 rewrite inv_ax. smt.  simplify.   
 smt(@Int @IntDiv). 
 progress.
@@ -314,12 +299,12 @@ apply prime_coprime. smt. smt. smt. auto. auto. qed.
 lemma div_m a_in b_in :
        phoare [ AlmostYul.montgomeryDiv : arg = (a_in * R %% P, b_in * R %% P)  /\ 0 <= arg.`1 < P
            /\  0 < arg.`2 < P
-         ==> res =  a_in * (inv P b_in) * R %% P ] = 1%r.
+         ==> res =  a_in * (inv b_in) * R %% P ] = 1%r.
 proc. simplify.
-seq 1 : (#pre /\ inverse = (inv P b_in) * R %% P ) 1%r 1%r 0%r 0%r.  auto.
+seq 1 : (#pre /\ inverse = (inv b_in) * R %% P ) 1%r 1%r 0%r 0%r.  auto.
 exists* divisor. elim*. move => div_v.
 call (inv_m b_in).               skip. progress.
-call (mul_m a_in (inv P b_in)). skip. progress.
+call (mul_m a_in (inv b_in)). skip. progress.
 smt. smt. 
 phoare split ! 1%r 1%r.
 auto.        
@@ -347,7 +332,7 @@ apply mul_m. qed.
 lemma div_m_h a_in b_in :
        hoare [ AlmostYul.montgomeryDiv : arg = (a_in * R %% P, b_in * R %% P)  /\ 0 <= arg.`1 < P
            /\  0 < arg.`2 < P
-         ==> res =  a_in * (inv P b_in) * R %% P ].
+         ==> res =  a_in * (inv b_in) * R %% P ].
 hoare.
 phoare split ! 1%r 1%r. auto. proc*.  call (div_m a_in b_in). progress.
 apply div_m. qed.
@@ -358,7 +343,7 @@ lemma submod_h a_in b_in m_in :
 
 
 lemma outof_m_h m_in :
-    hoare [ AlmostYul.outOfMontgomeryForm : arg = m_in  /\ 0 <= m < P ==> res = m_in * (inv P R) %% P ].
+    hoare [ AlmostYul.outOfMontgomeryForm : arg = m_in  /\ 0 <= m < P ==> res = m_in * (inv R) %% P ].
 admitted.
 
 

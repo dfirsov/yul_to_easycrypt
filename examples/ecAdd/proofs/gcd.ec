@@ -7,7 +7,7 @@ require import Gcd_props.
 
 module GCDAlgs = {
   proc simplify_t(t:int) = {
-      while (even t){
+      while (!odd t){
         t <- t %/ 2;
       }
       return t;
@@ -59,7 +59,7 @@ qed.
 lemma main3_term : phoare [GCDAlgs.main3 : odd u /\ 0 < u /\ 0 < v ==> true ] = 1%r.
 proc. unroll 3.
 rcondt 3. wp. skip. progress. smt()    .
-while (t = u - v /\ even t /\ odd u /\ odd v /\ 0 < u /\ 0 < v) (max u v).
+while (t = u - v /\ !odd t /\ odd u /\ odd v /\ 0 < u /\ 0 < v) (max u v).
 progress.    
 wp. skip. progress.
 case (v{hr} < u{hr}). progress.
@@ -101,12 +101,12 @@ have ->: 0 < div_by2s (-v{hr}) = false. smt(div_by2s1). simplify.
 smt.                            
 smt.
 smt. smt. smt.
-seq 1 : ((gcd u_in v_in = gcd t (if 0 < t then v else u) /\ even t /\ odd u /\ odd v)  /\  0 < u /\ 0 < v /\ t = u - v).
+seq 1 : ((gcd u_in v_in = gcd t (if 0 < t then v else u) /\ !odd t /\ odd u /\ odd v)  /\  0 < u /\ 0 < v /\ t = u - v).
 wp. skip. progress.
 rewrite H. 
 smt.
 smt.
-while (gcd u_in v_in =  gcd t (if 0 < t then v else u) /\ even t /\ odd u /\ odd v /\  0 <= u /\ 0 <= v /\ t = u - v).
+while (gcd u_in v_in =  gcd t (if 0 < t then v else u) /\ !odd t /\ odd u /\ odd v /\  0 <= u /\ 0 <= v /\ t = u - v).
 seq 1 : (gcd u_in v_in =gcd t (if 0 < t then v else u) /\ odd t /\ odd u /\ odd v /\ t <> 0 /\ 0 <= u /\ 0 <= v /\ t = div_by2s (u - v)).
 wp. skip. progress. rewrite H. 
 smt.

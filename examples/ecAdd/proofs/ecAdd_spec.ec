@@ -3,17 +3,17 @@ require import Gcd Gcd_props.
 
 require import AlmostYUL.
 require import Montgomery_arith.
+require import Parameters.
 
 
-
-op add_x' (x1 x2 y1 y2 : int) =  let slope = (y2 - y1) * inv P (x2 - x1) in (slope * slope - (x1 + x2)).
-op add_y' (x1 x2 y1 y2 : int) =  let slope = (y2 - y1) * inv P (x2 - x1) in
+op add_x' (x1 x2 y1 y2 : int) =  let slope = (y2 - y1) * inv (x2 - x1) in (slope * slope - (x1 + x2)).
+op add_y' (x1 x2 y1 y2 : int) =  let slope = (y2 - y1) * inv (x2 - x1) in
                            (slope * (x1 - (slope * slope - (x1 + x2))) - y1).
 
 
 
-op add_x (x y : int) =  let slope = 3 * (x ^ 2) * inv P (2 * y) in (slope ^ 2 - (2 * x)).
-op add_y (x y : int) =  let slope = 3 * (x ^ 2) * inv P (2 * y) in
+op add_x (x y : int) =  let slope = 3 * (x ^ 2) * inv (2 * y) in (slope ^ 2 - (2 * x)).
+op add_y (x y : int) =  let slope = 3 * (x ^ 2) * inv (2 * y) in
                         let x3 = add_x x y in (slope  * (x - x3) - y).
 
 

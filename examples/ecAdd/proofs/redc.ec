@@ -48,31 +48,30 @@ move => ass1.
 apply dvdzP. apply aux1. assumption. qed.
 
 
-lemma gen a x N : x <> 0 => coprime N x =>
-     x %| a => (a %/ x) %% N = a * (inv N x) %% N.
+lemma gen a x N : 1 < N  => x <> 0 => coprime N x =>
+     x %| a => (a %/ x) %% N = a * (invm x N) %% N.
 progress.    
 have f: exists (q : int), a = q * x.
 smt(dvdzP).    
 elim f. progress.    
 have ->: q * x %/ x = q. smt(@Int @IntDiv).
-have ->: q * x * inv N x = q * (inv N x * x).
+have ->: q * x * invm x N = q * (invm x N * x).
 smt (@Int @IntDiv).
-have ->: q * (inv N x * x) %% N = q * (inv N x * x %% N) %% N.
-smt(@Int @IntDiv).    
-rewrite inv_ax.     auto.
-simplify.  auto.
+have ->: q * (invm x N * x) %% N = q * (invm x N * x %% N) %% N.
+smt(@Int @IntDiv). 
+smt(@Int @IntDiv). 
 qed.    
 
-lemma aux3 T R N' N : R <> 0 => coprime N R => (N' * N %% R) = (-1) %% R =>
-    (t_val T R N' N) %% N = T * (inv N R) %% N.
+lemma aux3 T R N' N : 1 < N => R <> 0 => coprime N R => (N' * N %% R) = (-1) %% R =>
+    (t_val T R N' N) %% N = T * (invm R N) %% N.
 proof. progress.
 rewrite /t_val gen;auto. apply aux1. assumption.
 rewrite /t_val'.
-have -> : (T + m_val T R N' * N) * inv N R %% N =
- (T * (inv N R) + (m_val T R N' * N) * inv N R)  %% N. smt.
- have ->: (T * inv N R + m_val T R N' * N * inv N R) %% N =
-   (T * inv N R %% N + ((m_val T R N' * N * inv N R) %% N) ) %% N. smt(@Int @IntDiv).
- have ->:    ((m_val T R N' * N * inv N R) %% N) = 0. clear H0 H1. smt(@IntDiv). simplify.
+have -> : (T + m_val T R N' * N) * invm R N %% N =
+ (T * (invm R N) + (m_val T R N' * N) * invm R N)  %% N. smt.
+ have ->: (T * invm R N + m_val T R N' * N * invm R N) %% N =
+   (T * invm R N %% N + ((m_val T R N' * N * invm R N) %% N) ) %% N. smt(@Int @IntDiv).
+ have ->:    ((m_val T R N' * N * invm R N) %% N) = 0. clear H0 H1. smt(@IntDiv). simplify.
    smt(@Int @IntDiv).
 qed.   
 
@@ -112,12 +111,12 @@ have tf : 0 <= t < 2 * R * N. smt(aux5).
 apply kk. auto. smt(). smt.
 qed.    
 
-lemma redc_fun_correct T R N' N : 0 < R => 0 < N => 0 <= T < R * N =>
+lemma redc_fun_correct T R N' N : 1 < N => 0 < R => 0 < N => 0 <= T < R * N =>
    (N' * N %% R) = (-1) %% R => coprime N R =>
-    (redc T R N' N) = T * (inv N R) %% N.
+    (redc T R N' N) = T * (invm R N) %% N.
 progress.
 rewrite /redc.
-rewrite - (aux3 T R N' N).     smt(). auto. auto.
+rewrite - (aux3 T R N' N);auto. smt(). 
 simplify.    
 case (N <= t_val T R N' N). progress.
 have f : t_val T R N' N < 2 * N. smt(aux6).    
