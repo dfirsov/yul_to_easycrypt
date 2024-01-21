@@ -88,10 +88,3 @@ module YulExtract = {
 }.
 ```
 
-# WIP: Modular inversion 
-
-* `examples/modular_inversion/proofs/gcd.ec` EasyCrypt implementation and proofs of correctness for binary Euclidean algorithm.
-* `examples/modular_inversion/proofs/ext_gcd.ec` modular inversion by extended binary Euclidean algorithm (Bézout's identity and GCD) in EasyCrypt.
-* `examples/modular_inversion/proofs/ext_gcd_optmized.ec` gradual optimizations of extended binary Euclidean algorithm.
-* `examples/modular_inversion/sources/` YUL and Python implementation of modular inversion.
-
