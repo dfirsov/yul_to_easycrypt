@@ -1,5 +1,7 @@
 # Elliptic curve operations
 
+`Makefile` - script to run the proof-checker
+
 ### `proofs/`
 * `Parameters.ec` - parameters and their relations
 * `AlmostYUL.ec` - parameterized version of the YUL code
