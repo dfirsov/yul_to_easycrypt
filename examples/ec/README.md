@@ -4,7 +4,7 @@
 * `Parameters.ec` - parameters and their relations
 * `AlmostYUL.ec` - parameterized version of the YUL code
 
-### `proofs/montgomert_arith/`
+### `proofs/montgomery_arith/`
 * `redc.ec` - functional implementation and the respective correctness derivation for REDC algorithm.
 * `opt_redc.ec` - proof of correctness of abstract imperative implementation of REDC (`AlmostYul._REDC`).
 * `montgomert_arith.ec` - proofs of correctness for:
