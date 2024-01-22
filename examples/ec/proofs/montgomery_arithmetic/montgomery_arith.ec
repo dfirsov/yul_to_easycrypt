@@ -316,6 +316,7 @@ hoare.
 phoare split ! 1%r 1%r. auto. proc*.  call (div_m a_in b_in). progress.
 apply div_m. qed.
 
+
 lemma submod_h a_in b_in m_in :
     hoare [ AlmostYul.submod : arg = (a_in,b_in,m_in)  /\ 0 <= a_in < m_in /\ 0 <= 2 * m_in < R
       /\  0 <= b_in <= m_in ==> res = (a_in - b_in) %% m_in ]. admitted.

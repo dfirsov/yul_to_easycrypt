@@ -6,9 +6,8 @@ require import Montgomery_arith.
 require import Parameters.
 
 
-op pIsInfinity (xy : int * int) = xy.`1 = 0 /\ xy.`2 = 0.
-op pointIsInCurve (x y : int) = (y * y) %% P = (x * x * x + 3) %% P.
-
+op pointIsInfinity (x y : int) = x = 0 /\ y = 0.
+op pointIsInCurve  (x y : int) = (y * y) %% P = (x * x * x + 3) %% P.
 
 
 (* definition of valid input  *)
@@ -17,8 +16,8 @@ op valid_ecAdd_input (x1 y1 x2 y2) =
          /\ y1 < P
          /\ x2 < P
          /\ y2 < P
-         /\ (!pIsInfinity (x1, y1) => pointIsInCurve x1 y1)
-         /\ (!pIsInfinity (x2, y2) => pointIsInCurve x2 y2).
+         /\ (!pointIsInfinity x1 y1 => pointIsInCurve x1 y1)
+         /\ (!pointIsInfinity x2 y2 => pointIsInCurve x2 y2).
 
 
 op add_eq_x (x1 x2 y1 y2 : int) =  let slope = (y2 - y1) * inv (x2 - x1) in (slope * slope - (x1 + x2)).

@@ -14,16 +14,16 @@ lemma ecAdd_safety_1 x1_in y1_in x2_in y2_in :  0 <= x1_in /\ 0 <= y1_in /\ 0 <=
          /\ y1_in < P
          /\ x2_in < P
          /\ y2_in < P) /\
-         (((!pIsInfinity (x1_in, y1_in)) /\ (!pointIsInCurve x1_in y1_in)) \/
-         ((!pIsInfinity (x2_in, y2_in)) /\ (!pointIsInCurve x2_in y2_in)))      
+         (((!pointIsInfinity x1_in y1_in) /\ (!pointIsInCurve x1_in y1_in)) \/
+         ((!pointIsInfinity x2_in y2_in) /\ (!pointIsInCurve x2_in y2_in)))      
                  ==> true ] = 0%r.
 move => eqs. hoare. simplify.
 proc.
-seq 5 : (#pre /\ ret_bool = false /\ p1IsInfinity = pIsInfinity (x1_in, y1_in)
- /\  p2IsInfinity = pIsInfinity (x2_in, y2_in)                 ). inline*.
-seq 10 : (#pre /\ ret_bool = false  /\ func17 = (pIsInfinity (x1_in, y1_in) /\ pIsInfinity (x2_in, y2_in))
- /\  p1IsInfinity = pIsInfinity (x1_in, y1_in)
- /\  p2IsInfinity = pIsInfinity (x2_in, y2_in)                 
+seq 5 : (#pre /\ ret_bool = false /\ p1IsInfinity = pointIsInfinity x1_in y1_in
+ /\  p2IsInfinity = pointIsInfinity x2_in y2_in                 ). inline*.
+seq 10 : (#pre /\ ret_bool = false  /\ func17 = (pointIsInfinity x1_in y1_in /\ pointIsInfinity x2_in y2_in)
+ /\  p1IsInfinity = pointIsInfinity x1_in y1_in
+ /\  p2IsInfinity = pointIsInfinity x2_in y2_in                 
  ). wp. skip. progress.
 rcondf 1. skip. progress. smt. skip. smt.
 rcondt 1. auto.
@@ -105,11 +105,11 @@ rcondt 1. auto. simplify.
 seq 4 : ((((((((((
            (x1_in < P /\
             y1_in < P /\ x2_in < P /\ y2_in < P) /\
-           (! pIsInfinity (x1_in, y1_in) /\ ! pointIsInCurve x1_in y1_in \/
-            ! pIsInfinity (x2_in, y2_in) /\ ! pointIsInCurve x2_in y2_in)) /\
+           (! pointIsInfinity x1_in y1_in /\ ! pointIsInCurve x1_in y1_in \/
+            ! pointIsInfinity x2_in y2_in /\ ! pointIsInCurve x2_in y2_in)) /\
           ret_bool = false /\
-          p1IsInfinity = pIsInfinity (x1_in, y1_in) /\
-          p2IsInfinity = pIsInfinity (x2_in, y2_in)) /\
+          p1IsInfinity = pointIsInfinity x1_in y1_in /\
+          p2IsInfinity = pointIsInfinity x2_in y2_in) /\
          func43 = (p1IsInfinity /\ !p2IsInfinity)) /\
         ! func43) /\
        func109 = (!p1IsInfinity /\ p2IsInfinity)) /\
@@ -160,15 +160,15 @@ rcondf 5.
 inline*. progress. wp. skip. progress.
 smt.               
 inline*. progress. auto.
-seq 5 : (#pre /\ ret_bool = false /\ p1IsInfinity = pIsInfinity (x1,y1) /\ p2IsInfinity = pIsInfinity (x2,y2) ). inline*. progress. wp. skip. progress. smt.
-seq 2 : (#pre /\  func43 = (pIsInfinity (x1_in, y1_in) /\ !pIsInfinity  (x2_in, y2_in))). inline*. wp. skip.
+seq 5 : (#pre /\ ret_bool = false /\ p1IsInfinity = pointIsInfinity x1 y1 /\ p2IsInfinity = pointIsInfinity x2 y2). inline*. progress. wp. skip. progress. smt.
+seq 2 : (#pre /\  func43 = (pointIsInfinity x1_in y1_in /\ !pointIsInfinity  x2_in y2_in)). inline*. wp. skip.
 progress.   
 if.
   seq 6 : (false).
 inline*. sp. rcondt 1. skip. progress. smt.
 while (true). auto. skip. auto. exfalso.                              
 rcondt 1. auto.               
-seq 2 : (#pre /\ func109 = (!pIsInfinity (x1_in, y1_in) /\ pIsInfinity  (x2_in, y2_in)) ). inline*. auto.
+seq 2 : (#pre /\ func109 = (!pointIsInfinity x1_in y1_in /\ pointIsInfinity  x2_in y2_in)). inline*. auto.
 if.
   seq 6 : (false).
 inline*. sp. rcondt 1. skip. progress. smt.
