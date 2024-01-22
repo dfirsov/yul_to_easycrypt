@@ -28,6 +28,7 @@
 * `ExtraFacts.ec` - auxiliary lemmas.
 
 ### `sources/`
-
-* `mod_inv.py` - runtime testing for two versions of `binaryExtendedEuclideanAlgorithm` (version2 performs ~10% faster).
 * `ModularInverter.sol` - contract for gas-consumption testing for two versions of `binaryExtendedEuclideanAlgorithm`.
+  - `test2` - original version of modular inversion
+  - `test1` - new version of modular inversion (~5k gas cheaper than the original version on Remix)
+* `mod_inv.py` - script for runtime testing
