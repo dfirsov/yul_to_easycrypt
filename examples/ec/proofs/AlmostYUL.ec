@@ -41,7 +41,6 @@ module AlmostYul = {
 
 
 
-
   proc _REDC(Tlo : int, Thi : int, R : int, N : int, N' : int) = {
     var m, hi, lo, s, tmp, overflowed;
     m <- (Tlo * N') %% R;

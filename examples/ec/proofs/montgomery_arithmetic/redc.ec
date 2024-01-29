@@ -2,10 +2,11 @@ require import AllCore Int IntDiv.
 require import Gcd Gcd_props.
 
 
-(* functional specification  *)
-op m_val T R N' = ((T %% R) * N') %% R.
-op t_val' T R N' N = (T + (m_val T R N') * N).
-op t_val T R N' N = (t_val' T R N' N) %/ R.
+(* functional specification of REDC algorithm  *)
+op m_val (T R N' : int) = ((T %% R) * N') %% R.
+op t_val' (T R N' N : int) = (T + (m_val T R N') * N).
+op t_val (T R N' N : int) = (t_val' T R N' N) %/ R.
+
 op redc T R N' N = let t = t_val T R N' N in if N <= t then t - N else t.
 
 
